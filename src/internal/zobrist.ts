@@ -6,12 +6,12 @@ function lcg(seed: number): () => bigint {
   return () => {
     s =
       (s * 6_364_136_223_846_793_005n + 1_442_695_040_888_963_407n) &
-      0xFF_FF_FF_FF_FF_FF_FF_FFn;
+      0xff_ff_ff_ff_ff_ff_ff_ffn;
     return s;
   };
 }
 
-const next = lcg(0xDE_AD_BE_EF);
+const next = lcg(0xde_ad_be_ef);
 
 const COLORS_Z: Color[] = ['b', 'w'];
 const FILES_Z: File[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
