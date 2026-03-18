@@ -113,7 +113,8 @@ export class Position {
 
     // K vs KB or K vs KN
     if (nonKing.length === 1) {
-      return nonKing[0]!.type === 'b' || nonKing[0]!.type === 'n';
+      const [sole] = nonKing;
+      return sole?.type === 'b' || sole?.type === 'n';
     }
 
     return false;
