@@ -19,28 +19,28 @@ describe('squareRank', () => {
 });
 
 describe('squareColor', () => {
-  it('returns d for dark squares', () => {
-    expect(squareColor('a1')).toBe('d');
-    expect(squareColor('c1')).toBe('d');
-    expect(squareColor('b2')).toBe('d');
+  it('returns dark for dark squares', () => {
+    expect(squareColor('a1')).toBe('dark');
+    expect(squareColor('c1')).toBe('dark');
+    expect(squareColor('b2')).toBe('dark');
   });
 
-  it('returns l for light squares', () => {
-    expect(squareColor('a2')).toBe('l');
-    expect(squareColor('b1')).toBe('l');
-    expect(squareColor('h1')).toBe('l');
+  it('returns light for light squares', () => {
+    expect(squareColor('a2')).toBe('light');
+    expect(squareColor('b1')).toBe('light');
+    expect(squareColor('h1')).toBe('light');
   });
 
-  // Ported from chess.js squareColor test suite (adapted: 'light'→'l', 'dark'→'d')
-  it('returns l for known light squares', () => {
-    expect(squareColor('a8')).toBe('l');
-    expect(squareColor('h1')).toBe('l');
-    expect(squareColor('e4')).toBe('l');
+  // Ported from chess.js squareColor test suite
+  it('returns light for known light squares', () => {
+    expect(squareColor('a8')).toBe('light');
+    expect(squareColor('h1')).toBe('light');
+    expect(squareColor('e4')).toBe('light');
   });
 
-  it('returns d for known dark squares', () => {
-    expect(squareColor('a1')).toBe('d');
-    expect(squareColor('h8')).toBe('d');
-    expect(squareColor('d4')).toBe('d');
+  it('returns dark for known dark squares', () => {
+    expect(squareColor('a1')).toBe('dark');
+    expect(squareColor('h8')).toBe('dark');
+    expect(squareColor('d4')).toBe('dark');
   });
 });

@@ -9,14 +9,14 @@ function squareRank(square: Square): Rank {
 }
 
 /**
- * Returns 'd' for dark squares and 'l' for light squares.
- * a1 is dark: file index 0 + rank 1 = 1 (odd) → 'd'.
- * b1 is light: file index 1 + rank 1 = 2 (even) → 'l'.
+ * Returns 'dark' or 'light' for the given square.
+ * a1 is dark: file index 0 + rank 1 = 1 (odd) → 'dark'.
+ * b1 is light: file index 1 + rank 1 = 2 (even) → 'light'.
  */
 function squareColor(square: Square): SquareColor {
   const file = (square.codePointAt(0) ?? 0) - ('a'.codePointAt(0) ?? 0);
   const rank = Number.parseInt(square[1] ?? '1', 10);
-  return (file + rank) % 2 === 1 ? 'd' : 'l';
+  return (file + rank) % 2 === 1 ? 'dark' : 'light';
 }
 
 export { squareColor, squareFile, squareRank };

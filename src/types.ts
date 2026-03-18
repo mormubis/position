@@ -4,7 +4,7 @@ type PieceType = 'b' | 'k' | 'n' | 'p' | 'q' | 'r';
 type PromotionPieceType = 'b' | 'n' | 'q' | 'r';
 type Rank = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8';
 type Square = `${File}${Rank}`;
-type SquareColor = 'd' | 'l';
+type SquareColor = 'dark' | 'light';
 
 interface CastlingRights {
   bK: boolean;
