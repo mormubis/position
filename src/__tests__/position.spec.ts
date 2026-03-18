@@ -154,3 +154,28 @@ describe('attackers', () => {
     expect(pos.attackers('e4', 'b')).toEqual([]);
   });
 });
+
+describe('isCheck', () => {
+  it('returns false for starting position', () => {
+    expect(new Position().isCheck).toBe(false);
+  });
+
+  it('returns true when king is attacked by a rook on same file', () => {
+    const board = new Map<Square, Piece>([
+      ['e1', { color: 'w', type: 'k' }],
+      ['e8', { color: 'b', type: 'r' }],
+    ]);
+    const pos = new Position(board, { turn: 'w' });
+    expect(pos.isCheck).toBe(true);
+  });
+
+  it('returns false when sliding attacker is blocked', () => {
+    const board = new Map<Square, Piece>([
+      ['e1', { color: 'w', type: 'k' }],
+      ['e4', { color: 'w', type: 'p' }],
+      ['e8', { color: 'b', type: 'r' }],
+    ]);
+    const pos = new Position(board, { turn: 'w' });
+    expect(pos.isCheck).toBe(false);
+  });
+});

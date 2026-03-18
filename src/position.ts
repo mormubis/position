@@ -62,6 +62,16 @@ export class Position {
     return this.#halfmoveClock;
   }
 
+  get isCheck(): boolean {
+    for (const [square, p] of this.#board) {
+      if (p.type === 'k' && p.color === this.#turn) {
+        const opponent: Color = this.#turn === 'w' ? 'b' : 'w';
+        return this.isAttacked(square, opponent);
+      }
+    }
+    return false;
+  }
+
   get turn(): Color {
     return this.#turn;
   }
