@@ -17,7 +17,7 @@ const BISHOP_MASK = 0x04;
 const ROOK_MASK = 0x08;
 const KING_MASK = 0x10;
 
-export const PIECE_MASKS: Record<PieceType, number> = {
+const PIECE_MASKS_OBJ: Record<PieceType, number> = {
   b: BISHOP_MASK,
   k: KING_MASK,
   n: KNIGHT_MASK,
@@ -36,31 +36,31 @@ export const PIECE_MASKS: Record<PieceType, number> = {
 //
 // DIFF_OFFSET = 119 centres the diff range [-119, +119] at index 0.
 
-export const DIFF_OFFSET = 119;
+const DIFF_OFFSET_VAL = 119;
 
-export const ATTACKS: number[] = Array.from<number>({ length: 240 }).fill(0);
-export const RAYS: number[] = Array.from<number>({ length: 240 }).fill(0);
+const ATTACKS_ARR: number[] = Array.from<number>({ length: 240 }).fill(0);
+const RAYS_ARR: number[] = Array.from<number>({ length: 240 }).fill(0);
 
 (function initAttackTables() {
   // Knight
   for (const offset of KNIGHT_OFFSETS_0X88) {
-    ATTACKS[offset + DIFF_OFFSET] =
-      (ATTACKS[offset + DIFF_OFFSET] ?? 0) | KNIGHT_MASK;
+    ATTACKS_ARR[offset + DIFF_OFFSET_VAL] =
+      (ATTACKS_ARR[offset + DIFF_OFFSET_VAL] ?? 0) | KNIGHT_MASK;
   }
 
   // King
   for (const offset of KING_OFFSETS_0X88) {
-    ATTACKS[offset + DIFF_OFFSET] =
-      (ATTACKS[offset + DIFF_OFFSET] ?? 0) | KING_MASK;
+    ATTACKS_ARR[offset + DIFF_OFFSET_VAL] =
+      (ATTACKS_ARR[offset + DIFF_OFFSET_VAL] ?? 0) | KING_MASK;
   }
 
   // Pawns — white attacks at offsets -17 and -15 (toward rank 8 = lower index)
   // black attacks at +15 and +17. Both share PAWN_MASK; color checked at use time.
   for (const offset of [15, 17]) {
-    ATTACKS[offset + DIFF_OFFSET] =
-      (ATTACKS[offset + DIFF_OFFSET] ?? 0) | PAWN_MASK;
-    ATTACKS[-offset + DIFF_OFFSET] =
-      (ATTACKS[-offset + DIFF_OFFSET] ?? 0) | PAWN_MASK;
+    ATTACKS_ARR[offset + DIFF_OFFSET_VAL] =
+      (ATTACKS_ARR[offset + DIFF_OFFSET_VAL] ?? 0) | PAWN_MASK;
+    ATTACKS_ARR[-offset + DIFF_OFFSET_VAL] =
+      (ATTACKS_ARR[-offset + DIFF_OFFSET_VAL] ?? 0) | PAWN_MASK;
   }
 
   // Sliding pieces — walk every ray from every valid square
@@ -73,9 +73,9 @@ export const RAYS: number[] = Array.from<number>({ length: 240 }).fill(0);
       let to = from + direction;
       while (!(to & OFF_BOARD)) {
         const diff = to - from;
-        ATTACKS[diff + DIFF_OFFSET] =
-          (ATTACKS[diff + DIFF_OFFSET] ?? 0) | ROOK_MASK;
-        RAYS[diff + DIFF_OFFSET] = direction;
+        ATTACKS_ARR[diff + DIFF_OFFSET_VAL] =
+          (ATTACKS_ARR[diff + DIFF_OFFSET_VAL] ?? 0) | ROOK_MASK;
+        RAYS_ARR[diff + DIFF_OFFSET_VAL] = direction;
         to += direction;
       }
     }
@@ -84,11 +84,16 @@ export const RAYS: number[] = Array.from<number>({ length: 240 }).fill(0);
       let to = from + direction;
       while (!(to & OFF_BOARD)) {
         const diff = to - from;
-        ATTACKS[diff + DIFF_OFFSET] =
-          (ATTACKS[diff + DIFF_OFFSET] ?? 0) | BISHOP_MASK;
-        RAYS[diff + DIFF_OFFSET] = direction;
+        ATTACKS_ARR[diff + DIFF_OFFSET_VAL] =
+          (ATTACKS_ARR[diff + DIFF_OFFSET_VAL] ?? 0) | BISHOP_MASK;
+        RAYS_ARR[diff + DIFF_OFFSET_VAL] = direction;
         to += direction;
       }
     }
   }
 })();
+
+export const PIECE_MASKS = PIECE_MASKS_OBJ;
+export const DIFF_OFFSET = DIFF_OFFSET_VAL;
+export const ATTACKS = ATTACKS_ARR;
+export const RAYS = RAYS_ARR;
