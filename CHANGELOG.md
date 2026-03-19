@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.2] - 2026-03-19
+
+### Fixed
+
+- Lowercase hex literals in Zobrist table seed constants.
+
 ## [1.0.1] - 2026-03-19
 
 ### Changed
