@@ -86,6 +86,7 @@ checks, assertion functions) unless there is an explicit trust boundary.
 
 ## Architecture Notes
 
+- **ESM-only** — the package ships only ESM. Do not add a CJS build.
 - All interface fields sorted alphabetically (sort-keys ESLint error).
 - Use `.js` extensions on all relative imports (NodeNext resolution).
 - No null — use undefined everywhere (unicorn/no-null).
