@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Agent guidance for the `@echecs/position` package — foundational chess position
-type and board utilities for the ECHECS monorepo.
+type and board utilities in the `@echecs` family of chess libraries.
 
 See the root `AGENTS.md` for workspace-wide conventions.
 
