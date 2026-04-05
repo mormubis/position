@@ -1,22 +1,4 @@
-import type { File, Rank, Square, SquareColor } from './types.js';
-
-/**
- * Returns the file of a square.
- *
- * @param square - The square to query.
- */
-function squareFile(square: Square): File {
-  return square[0] as File;
-}
-
-/**
- * Returns the rank of a square.
- *
- * @param square - The square to query.
- */
-function squareRank(square: Square): Rank {
-  return square[1] as Rank;
-}
+import type { Square, SquareColor } from './types.js';
 
 /**
  * Returns the color of a square — `'dark'` or `'light'`.
@@ -29,4 +11,4 @@ function squareColor(square: Square): SquareColor {
   return (file + rank) % 2 === 1 ? 'dark' : 'light';
 }
 
-export { squareColor, squareFile, squareRank };
+export { squareColor };

@@ -8,12 +8,6 @@ function squareToIndex(square: Square): number {
   return (8 - rank) * 16 + file;
 }
 
-function indexToSquare(index: number): Square {
-  const rank = 8 - Math.floor(index / 16);
-  const file = index % 16;
-  return `${String.fromCodePoint(('a'.codePointAt(0) ?? 0) + file)}${rank}` as Square;
-}
-
 /**
  * Converts a Map<Square, Piece> to the internal 0x88 array representation.
  * The bridge between the public Position type and the 0x88 internal layout.
@@ -26,4 +20,4 @@ function boardFromMap(map: Map<Square, Piece>): (Piece | undefined)[] {
   return board;
 }
 
-export { OFF_BOARD, boardFromMap, indexToSquare, squareToIndex };
+export { OFF_BOARD, boardFromMap, squareToIndex };
