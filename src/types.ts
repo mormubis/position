@@ -37,14 +37,14 @@ interface CastlingRights {
 
 /**
  * Options accepted by {@link Position.derive}. Extends {@link PositionOptions}
- * with a `board` field for applying piece changes.
+ * with a `changes` field for applying piece changes.
  */
 interface DeriveOptions extends PositionOptions {
   /**
-   * Board changes as `[square, piece]` tuples. Set piece to `undefined` to
+   * Piece changes as `[square, piece]` tuples. Set piece to `undefined` to
    * clear a square. Only changed squares need to be listed.
    */
-  board?: [Square, Piece | undefined][];
+  changes?: [Square, Piece | undefined][];
 }
 
 /**

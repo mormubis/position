@@ -95,11 +95,11 @@ modified. Fields not provided are carried over from the source.
 ```typescript
 // move e2 pawn to e4
 const next = pos.derive({
-  board: [
+  changes: [
     ['e2', undefined],
-    ['e4', { color: 'w', type: 'p' }],
+    ['e4', { color: 'white', type: 'pawn' }],
   ],
-  turn: 'b',
+  turn: 'black',
   enPassantSquare: 'e3',
 });
 

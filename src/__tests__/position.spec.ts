@@ -677,7 +677,7 @@ describe('derive', () => {
   it('applies board changes', () => {
     const pos = new Position();
     const derived = pos.derive({
-      board: [
+      changes: [
         ['e2', undefined],
         ['e4', { color: 'white', type: 'pawn' }],
       ],
@@ -689,7 +689,7 @@ describe('derive', () => {
   it('does not modify the original position', () => {
     const pos = new Position();
     pos.derive({
-      board: [['e2', undefined]],
+      changes: [['e2', undefined]],
     });
     expect(pos.piece('e2')).toEqual({ color: 'white', type: 'pawn' });
   });
@@ -730,7 +730,7 @@ describe('derive', () => {
   it('applies board and options together', () => {
     const pos = new Position();
     const derived = pos.derive({
-      board: [
+      changes: [
         ['e2', undefined],
         ['e4', { color: 'white', type: 'pawn' }],
       ],
@@ -748,7 +748,7 @@ describe('derive', () => {
   it('last tuple wins when multiple target the same square', () => {
     const pos = new Position();
     const derived = pos.derive({
-      board: [
+      changes: [
         ['e4', { color: 'white', type: 'pawn' }],
         ['e4', { color: 'black', type: 'queen' }],
       ],
@@ -759,8 +759,8 @@ describe('derive', () => {
   it('supports chained derive calls', () => {
     const pos = new Position();
     const derived = pos
-      .derive({ board: [['e2', undefined]], turn: 'black' })
-      .derive({ board: [['e4', { color: 'white', type: 'pawn' }]] });
+      .derive({ changes: [['e2', undefined]], turn: 'black' })
+      .derive({ changes: [['e4', { color: 'white', type: 'pawn' }]] });
     expect(derived.piece('e2')).toBeUndefined();
     expect(derived.piece('e4')).toEqual({ color: 'white', type: 'pawn' });
     expect(derived.turn).toBe('black');
@@ -769,7 +769,7 @@ describe('derive', () => {
   it('produces correct Zobrist hash', () => {
     const pos = new Position();
     const derived = pos.derive({
-      board: [
+      changes: [
         ['e2', undefined],
         ['e4', { color: 'white', type: 'pawn' }],
       ],

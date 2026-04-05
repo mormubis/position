@@ -285,8 +285,8 @@ export class Position {
   derive(changes?: DeriveOptions): Position {
     const board = new Map(this.#board);
 
-    if (changes?.board) {
-      for (const [square, piece] of changes.board) {
+    if (changes?.changes) {
+      for (const [square, piece] of changes.changes) {
         if (piece === undefined) {
           board.delete(square);
         } else {
