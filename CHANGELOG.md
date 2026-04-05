@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1] - 2026-04-05
+
+### Fixed
+
+- Docs CI workflow using renamed script.
+- Lockfile out of sync with dependency versions.
+
 ## [2.0.0] - 2026-04-05
 
 ### Added
