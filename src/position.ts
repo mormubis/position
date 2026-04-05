@@ -18,6 +18,7 @@ import type {
   CastlingRights,
   Color,
   DeriveOptions,
+  EnPassantSquare,
   File,
   Piece,
   PositionOptions,
@@ -30,7 +31,7 @@ const DEFAULT_OPTIONS: Required<Omit<PositionOptions, 'enPassantSquare'>> &
   enPassantSquare: undefined,
   fullmoveNumber: 1,
   halfmoveClock: 0,
-  turn: 'w',
+  turn: 'white',
 };
 
 /**
@@ -43,7 +44,7 @@ const DEFAULT_OPTIONS: Required<Omit<PositionOptions, 'enPassantSquare'>> &
 export class Position {
   readonly #board: Map<Square, Piece>;
   readonly #castlingRights: CastlingRights;
-  readonly #enPassantSquare: Square | undefined;
+  readonly #enPassantSquare: EnPassantSquare | undefined;
   readonly #fullmoveNumber: number;
   readonly #halfmoveClock: number;
   #hash: string | undefined;
@@ -71,7 +72,7 @@ export class Position {
   }
 
   /** En passant target square, or `undefined` if none. */
-  get enPassantSquare(): Square | undefined {
+  get enPassantSquare(): EnPassantSquare | undefined {
     return this.#enPassantSquare;
   }
 
@@ -131,7 +132,7 @@ export class Position {
   get isInsufficientMaterial(): boolean {
     const nonKingEntries: [Square, Piece][] = [];
     for (const [sq, p] of this.#board) {
-      if (p.type !== 'k') {
+      if (p.type !== 'king') {
         nonKingEntries.push([sq, p]);
       }
     }
@@ -144,11 +145,11 @@ export class Position {
     // K vs KB or K vs KN
     if (nonKingEntries.length === 1) {
       const sole = nonKingEntries[0]?.[1];
-      return sole?.type === 'b' || sole?.type === 'n';
+      return sole?.type === 'bishop' || sole?.type === 'knight';
     }
 
     // KB vs KB (any number) — all non-king pieces must be bishops on the same square color
-    const allBishops = nonKingEntries.every(([, p]) => p.type === 'b');
+    const allBishops = nonKingEntries.every(([, p]) => p.type === 'bishop');
     if (allBishops) {
       const first = nonKingEntries[0];
       if (first === undefined) {
@@ -172,8 +173,8 @@ export class Position {
     let whiteKings = 0;
 
     for (const [square, p] of this.#board) {
-      if (p.type === 'k') {
-        if (p.color === 'b') {
+      if (p.type === 'king') {
+        if (p.color === 'black') {
           blackKings++;
         } else {
           whiteKings++;
@@ -181,7 +182,7 @@ export class Position {
       }
 
       // No pawns on rank 1 or 8
-      if (p.type === 'p' && (square[1] === '1' || square[1] === '8')) {
+      if (p.type === 'pawn' && (square[1] === '1' || square[1] === '8')) {
         return false;
       }
     }
@@ -191,10 +192,10 @@ export class Position {
     }
 
     // Side not to move must not be in check
-    const opponent: Color = this.#turn === 'w' ? 'b' : 'w';
+    const opponent: Color = this.#turn === 'white' ? 'black' : 'white';
     for (const [square, p] of this.#board) {
       if (
-        p.type === 'k' &&
+        p.type === 'king' &&
         p.color === opponent &&
         this.isAttacked(square, this.#turn)
       ) {
@@ -208,15 +209,15 @@ export class Position {
   /** Whether the side to move is in check. */
   get isCheck(): boolean {
     for (const [square, p] of this.#board) {
-      if (p.type === 'k' && p.color === this.#turn) {
-        const opponent: Color = this.#turn === 'w' ? 'b' : 'w';
+      if (p.type === 'king' && p.color === this.#turn) {
+        const opponent: Color = this.#turn === 'white' ? 'black' : 'white';
         return this.isAttacked(square, opponent);
       }
     }
     return false;
   }
 
-  /** Side to move — `'w'` or `'b'`. */
+  /** Side to move — `'white'` or `'black'`. */
   get turn(): Color {
     return this.#turn;
   }
@@ -242,12 +243,12 @@ export class Position {
       return false;
     }
 
-    if (p.type === 'p') {
-      if (by === 'w' && diff > 0) {
+    if (p.type === 'pawn') {
+      if (by === 'white' && diff > 0) {
         return false;
       }
 
-      if (by === 'b' && diff < 0) {
+      if (by === 'black' && diff < 0) {
         return false;
       }
     }

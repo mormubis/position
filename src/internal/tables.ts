@@ -18,12 +18,12 @@ const ROOK_MASK = 0x08;
 const KING_MASK = 0x10;
 
 const PIECE_MASKS: Record<PieceType, number> = {
-  b: BISHOP_MASK,
-  k: KING_MASK,
-  n: KNIGHT_MASK,
-  p: PAWN_MASK,
-  q: BISHOP_MASK | ROOK_MASK,
-  r: ROOK_MASK,
+  bishop: BISHOP_MASK,
+  king: KING_MASK,
+  knight: KNIGHT_MASK,
+  pawn: PAWN_MASK,
+  queen: BISHOP_MASK | ROOK_MASK,
+  rook: ROOK_MASK,
 };
 
 // ── ATTACKS / RAYS lookup tables ──────────────────────────────────────────────

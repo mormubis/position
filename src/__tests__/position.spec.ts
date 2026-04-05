@@ -7,7 +7,7 @@ import type { Piece, Square } from '../types.js';
 describe('Position constructor', () => {
   it('defaults to starting position with no args', () => {
     const pos = new Position();
-    expect(pos.turn).toBe('w');
+    expect(pos.turn).toBe('white');
     expect(pos.halfmoveClock).toBe(0);
     expect(pos.fullmoveNumber).toBe(1);
     expect(pos.castlingRights).toEqual({
@@ -26,27 +26,27 @@ describe('Position constructor', () => {
 
   it('accepts a custom board', () => {
     const board = new Map<Square, Piece>([
-      ['e1', { color: 'w', type: 'k' }],
-      ['e8', { color: 'b', type: 'k' }],
+      ['e1', { color: 'white', type: 'king' }],
+      ['e8', { color: 'black', type: 'king' }],
     ]);
     const pos = new Position(board);
     expect(pos.pieces().size).toBe(2);
-    expect(pos.turn).toBe('w');
+    expect(pos.turn).toBe('white');
   });
 
   it('accepts options to override defaults', () => {
     const board = new Map<Square, Piece>([
-      ['e1', { color: 'w', type: 'k' }],
-      ['e8', { color: 'b', type: 'k' }],
+      ['e1', { color: 'white', type: 'king' }],
+      ['e8', { color: 'black', type: 'king' }],
     ]);
     const pos = new Position(board, {
-      turn: 'b',
+      turn: 'black',
       halfmoveClock: 5,
       fullmoveNumber: 10,
       castlingRights: { bK: false, bQ: false, wK: false, wQ: false },
       enPassantSquare: 'e3',
     });
-    expect(pos.turn).toBe('b');
+    expect(pos.turn).toBe('black');
     expect(pos.halfmoveClock).toBe(5);
     expect(pos.fullmoveNumber).toBe(10);
     expect(pos.castlingRights).toEqual({
@@ -62,7 +62,7 @@ describe('Position constructor', () => {
 describe('piece', () => {
   it('returns piece on occupied square', () => {
     const pos = new Position();
-    expect(pos.piece('e1')).toEqual({ color: 'w', type: 'k' });
+    expect(pos.piece('e1')).toEqual({ color: 'white', type: 'king' });
   });
 
   it('returns undefined for empty square', () => {
@@ -79,19 +79,19 @@ describe('pieces', () => {
 
   it('returns 16 white pieces', () => {
     const pos = new Position();
-    expect(pos.pieces('w').size).toBe(16);
+    expect(pos.pieces('white').size).toBe(16);
   });
 
   it('returns 16 black pieces', () => {
     const pos = new Position();
-    expect(pos.pieces('b').size).toBe(16);
+    expect(pos.pieces('black').size).toBe(16);
   });
 });
 
 describe('findPiece', () => {
   it('returns squares with matching piece', () => {
     const pos = new Position();
-    const squares = pos.findPiece({ color: 'w', type: 'r' });
+    const squares = pos.findPiece({ color: 'white', type: 'rook' });
     expect(squares).toHaveLength(2);
     expect(squares).toContain('a1');
     expect(squares).toContain('h1');
@@ -99,28 +99,31 @@ describe('findPiece', () => {
 
   it('returns empty array when piece not found', () => {
     const board = new Map<Square, Piece>([
-      ['e1', { color: 'w', type: 'k' }],
-      ['e8', { color: 'b', type: 'k' }],
+      ['e1', { color: 'white', type: 'king' }],
+      ['e8', { color: 'black', type: 'king' }],
     ]);
     const pos = new Position(board);
-    expect(pos.findPiece({ color: 'w', type: 'q' })).toEqual([]);
+    expect(pos.findPiece({ color: 'white', type: 'queen' })).toEqual([]);
   });
 
   // Ported from chess.js findPiece test suite
   it('returns single square for unique piece (kings)', () => {
     const pos = new Position();
-    expect(pos.findPiece({ color: 'w', type: 'k' })).toEqual(['e1']);
-    expect(pos.findPiece({ color: 'b', type: 'k' })).toEqual(['e8']);
+    expect(pos.findPiece({ color: 'white', type: 'king' })).toEqual(['e1']);
+    expect(pos.findPiece({ color: 'black', type: 'king' })).toEqual(['e8']);
   });
 
   it('returns ordered squares for knights', () => {
     const pos = new Position();
-    expect(pos.findPiece({ color: 'w', type: 'n' })).toEqual(['b1', 'g1']);
+    expect(pos.findPiece({ color: 'white', type: 'knight' })).toEqual([
+      'b1',
+      'g1',
+    ]);
   });
 
   it('returns all 8 squares for black pawns in order', () => {
     const pos = new Position();
-    expect(pos.findPiece({ color: 'b', type: 'p' })).toEqual([
+    expect(pos.findPiece({ color: 'black', type: 'pawn' })).toEqual([
       'a7',
       'b7',
       'c7',
@@ -136,73 +139,75 @@ describe('findPiece', () => {
 describe('isAttacked', () => {
   it('returns true when a white pawn attacks the square diagonally', () => {
     const board = new Map<Square, Piece>([
-      ['e1', { color: 'w', type: 'k' }],
-      ['d3', { color: 'w', type: 'p' }],
+      ['e1', { color: 'white', type: 'king' }],
+      ['d3', { color: 'white', type: 'pawn' }],
     ]);
     const pos = new Position(board);
-    expect(pos.isAttacked('e4', 'w')).toBe(true);
+    expect(pos.isAttacked('e4', 'white')).toBe(true);
   });
 
   it('returns false when no piece attacks the square', () => {
-    const board = new Map<Square, Piece>([['e1', { color: 'w', type: 'k' }]]);
+    const board = new Map<Square, Piece>([
+      ['e1', { color: 'white', type: 'king' }],
+    ]);
     const pos = new Position(board);
-    expect(pos.isAttacked('e4', 'b')).toBe(false);
+    expect(pos.isAttacked('e4', 'black')).toBe(false);
   });
 
   it('returns true when a knight attacks the square', () => {
     const board = new Map<Square, Piece>([
-      ['e1', { color: 'w', type: 'k' }],
-      ['f6', { color: 'b', type: 'n' }],
+      ['e1', { color: 'white', type: 'king' }],
+      ['f6', { color: 'black', type: 'knight' }],
     ]);
     const pos = new Position(board);
-    expect(pos.isAttacked('e4', 'b')).toBe(true);
-    expect(pos.isAttacked('g4', 'b')).toBe(true);
-    expect(pos.isAttacked('a1', 'b')).toBe(false);
+    expect(pos.isAttacked('e4', 'black')).toBe(true);
+    expect(pos.isAttacked('g4', 'black')).toBe(true);
+    expect(pos.isAttacked('a1', 'black')).toBe(false);
   });
 
   // Ported from chess.js isAttacked test suite
   it('white pawn attacks diagonally but not forward', () => {
     // 4k3/4p3/8/8/8/8/4P3/4K3 w - - 0 1
     const board = new Map<Square, Piece>([
-      ['e8', { color: 'b', type: 'k' }],
-      ['e7', { color: 'b', type: 'p' }],
-      ['e2', { color: 'w', type: 'p' }],
-      ['e1', { color: 'w', type: 'k' }],
+      ['e8', { color: 'black', type: 'king' }],
+      ['e7', { color: 'black', type: 'pawn' }],
+      ['e2', { color: 'white', type: 'pawn' }],
+      ['e1', { color: 'white', type: 'king' }],
     ]);
     const pos = new Position(board);
-    expect(pos.isAttacked('d3', 'w')).toBe(true);
-    expect(pos.isAttacked('f3', 'w')).toBe(true);
-    expect(pos.isAttacked('d3', 'b')).toBe(false);
-    expect(pos.isAttacked('f3', 'b')).toBe(false);
+    expect(pos.isAttacked('d3', 'white')).toBe(true);
+    expect(pos.isAttacked('f3', 'white')).toBe(true);
+    expect(pos.isAttacked('d3', 'black')).toBe(false);
+    expect(pos.isAttacked('f3', 'black')).toBe(false);
     // pawn forward moves are not attacks
-    expect(pos.isAttacked('e3', 'w')).toBe(false);
-    expect(pos.isAttacked('e4', 'w')).toBe(false);
+    expect(pos.isAttacked('e3', 'white')).toBe(false);
+    expect(pos.isAttacked('e4', 'white')).toBe(false);
   });
 
   it('black pawn attacks diagonally but not forward', () => {
     // 4k3/4p3/8/8/8/8/4P3/4K3 w - - 0 1
     const board = new Map<Square, Piece>([
-      ['e8', { color: 'b', type: 'k' }],
-      ['e7', { color: 'b', type: 'p' }],
-      ['e2', { color: 'w', type: 'p' }],
-      ['e1', { color: 'w', type: 'k' }],
+      ['e8', { color: 'black', type: 'king' }],
+      ['e7', { color: 'black', type: 'pawn' }],
+      ['e2', { color: 'white', type: 'pawn' }],
+      ['e1', { color: 'white', type: 'king' }],
     ]);
     const pos = new Position(board);
-    expect(pos.isAttacked('f6', 'b')).toBe(true);
-    expect(pos.isAttacked('d6', 'b')).toBe(true);
-    expect(pos.isAttacked('f6', 'w')).toBe(false);
-    expect(pos.isAttacked('d6', 'w')).toBe(false);
+    expect(pos.isAttacked('f6', 'black')).toBe(true);
+    expect(pos.isAttacked('d6', 'black')).toBe(true);
+    expect(pos.isAttacked('f6', 'white')).toBe(false);
+    expect(pos.isAttacked('d6', 'white')).toBe(false);
     // pawn forward moves are not attacks
-    expect(pos.isAttacked('e6', 'b')).toBe(false);
-    expect(pos.isAttacked('e5', 'b')).toBe(false);
+    expect(pos.isAttacked('e6', 'black')).toBe(false);
+    expect(pos.isAttacked('e5', 'black')).toBe(false);
   });
 
   it('knight attacks all 8 squares and not its own square', () => {
     // 4k3/4p3/8/8/4N3/8/8/4K3 w - - 0 1
     const board = new Map<Square, Piece>([
-      ['e8', { color: 'b', type: 'k' }],
-      ['e4', { color: 'w', type: 'n' }],
-      ['e1', { color: 'w', type: 'k' }],
+      ['e8', { color: 'black', type: 'king' }],
+      ['e4', { color: 'white', type: 'knight' }],
+      ['e1', { color: 'white', type: 'king' }],
     ]);
     const pos = new Position(board);
     for (const sq of [
@@ -215,17 +220,17 @@ describe('isAttacked', () => {
       'c5',
       'g5',
     ] as Square[]) {
-      expect(pos.isAttacked(sq, 'w')).toBe(true);
+      expect(pos.isAttacked(sq, 'white')).toBe(true);
     }
-    expect(pos.isAttacked('e4', 'w')).toBe(false); // same square
+    expect(pos.isAttacked('e4', 'white')).toBe(false); // same square
   });
 
   it('bishop attacks all diagonals and not its own square', () => {
     // 4k3/4p3/8/8/4b3/8/8/4K3 — black bishop on e4
     const board = new Map<Square, Piece>([
-      ['e8', { color: 'b', type: 'k' }],
-      ['e4', { color: 'b', type: 'b' }],
-      ['e1', { color: 'w', type: 'k' }],
+      ['e8', { color: 'black', type: 'king' }],
+      ['e4', { color: 'black', type: 'bishop' }],
+      ['e1', { color: 'white', type: 'king' }],
     ]);
     const pos = new Position(board);
     for (const sq of [
@@ -243,18 +248,18 @@ describe('isAttacked', () => {
       'g2',
       'h1',
     ] as Square[]) {
-      expect(pos.isAttacked(sq, 'b')).toBe(true);
+      expect(pos.isAttacked(sq, 'black')).toBe(true);
     }
-    expect(pos.isAttacked('e4', 'b')).toBe(false); // same square
+    expect(pos.isAttacked('e4', 'black')).toBe(false); // same square
   });
 
   it('rook attacks rank and file, can attack own color, not its own square', () => {
     // 4k3/4n3/8/8/8/4R3/8/4K3 — white rook on e3, black knight on e7
     const board = new Map<Square, Piece>([
-      ['e8', { color: 'b', type: 'k' }],
-      ['e7', { color: 'b', type: 'n' }],
-      ['e3', { color: 'w', type: 'r' }],
-      ['e1', { color: 'w', type: 'k' }],
+      ['e8', { color: 'black', type: 'king' }],
+      ['e7', { color: 'black', type: 'knight' }],
+      ['e3', { color: 'white', type: 'rook' }],
+      ['e1', { color: 'white', type: 'king' }],
     ]);
     const pos = new Position(board);
     for (const sq of [
@@ -272,20 +277,20 @@ describe('isAttacked', () => {
       'g3',
       'h3',
     ] as Square[]) {
-      expect(pos.isAttacked(sq, 'w')).toBe(true);
+      expect(pos.isAttacked(sq, 'white')).toBe(true);
     }
-    expect(pos.isAttacked('e3', 'w')).toBe(false); // same square
-    expect(pos.isAttacked('e8', 'w')).toBe(false); // blocked by e7
+    expect(pos.isAttacked('e3', 'white')).toBe(false); // same square
+    expect(pos.isAttacked('e8', 'white')).toBe(false); // blocked by e7
   });
 
   it('queen attacks rank, file, and diagonals', () => {
     // 4k3/4n3/8/8/8/4q3/4P3/4K3 — black queen on e3
     const board = new Map<Square, Piece>([
-      ['e8', { color: 'b', type: 'k' }],
-      ['e7', { color: 'b', type: 'n' }],
-      ['e3', { color: 'b', type: 'q' }],
-      ['e2', { color: 'w', type: 'p' }],
-      ['e1', { color: 'w', type: 'k' }],
+      ['e8', { color: 'black', type: 'king' }],
+      ['e7', { color: 'black', type: 'knight' }],
+      ['e3', { color: 'black', type: 'queen' }],
+      ['e2', { color: 'white', type: 'pawn' }],
+      ['e1', { color: 'white', type: 'king' }],
     ]);
     const pos = new Position(board);
     for (const sq of [
@@ -313,81 +318,83 @@ describe('isAttacked', () => {
       'b6',
       'a7',
     ] as Square[]) {
-      expect(pos.isAttacked(sq, 'b')).toBe(true);
+      expect(pos.isAttacked(sq, 'black')).toBe(true);
     }
-    expect(pos.isAttacked('e3', 'b')).toBe(false); // same square
-    expect(pos.isAttacked('e1', 'b')).toBe(false); // blocked by e2
+    expect(pos.isAttacked('e3', 'black')).toBe(false); // same square
+    expect(pos.isAttacked('e1', 'black')).toBe(false); // blocked by e2
   });
 
   it('king attacks all adjacent squares and not its own square', () => {
     // 4k3/4n3/8/8/8/4q3/4P3/4K3 — white king on e1
     const board = new Map<Square, Piece>([
-      ['e8', { color: 'b', type: 'k' }],
-      ['e1', { color: 'w', type: 'k' }],
-      ['e2', { color: 'w', type: 'p' }],
+      ['e8', { color: 'black', type: 'king' }],
+      ['e1', { color: 'white', type: 'king' }],
+      ['e2', { color: 'white', type: 'pawn' }],
     ]);
     const pos = new Position(board);
     for (const sq of ['e2', 'd1', 'd2', 'f1', 'f2'] as Square[]) {
-      expect(pos.isAttacked(sq, 'w')).toBe(true);
+      expect(pos.isAttacked(sq, 'white')).toBe(true);
     }
-    expect(pos.isAttacked('e1', 'w')).toBe(false); // same square
+    expect(pos.isAttacked('e1', 'white')).toBe(false); // same square
   });
 
   it('pinned pieces still attack squares', () => {
     // 4k3/4r3/8/8/8/8/4P3/4K3 — white pawn on e2, pinned by black rook on e7
     const board = new Map<Square, Piece>([
-      ['e8', { color: 'b', type: 'k' }],
-      ['e7', { color: 'b', type: 'r' }],
-      ['e2', { color: 'w', type: 'p' }],
-      ['e1', { color: 'w', type: 'k' }],
+      ['e8', { color: 'black', type: 'king' }],
+      ['e7', { color: 'black', type: 'rook' }],
+      ['e2', { color: 'white', type: 'pawn' }],
+      ['e1', { color: 'white', type: 'king' }],
     ]);
     const pos = new Position(board);
-    expect(pos.isAttacked('d3', 'w')).toBe(true);
-    expect(pos.isAttacked('f3', 'w')).toBe(true);
+    expect(pos.isAttacked('d3', 'white')).toBe(true);
+    expect(pos.isAttacked('f3', 'white')).toBe(true);
   });
 
   it('no x-ray through blocking piece', () => {
     // 4k3/4n3/8/8/8/4q3/4P3/4K3 — black queen on e3 blocked by white pawn e2
     const board = new Map<Square, Piece>([
-      ['e8', { color: 'b', type: 'k' }],
-      ['e7', { color: 'b', type: 'n' }],
-      ['e3', { color: 'b', type: 'q' }],
-      ['e2', { color: 'w', type: 'p' }],
-      ['e1', { color: 'w', type: 'k' }],
+      ['e8', { color: 'black', type: 'king' }],
+      ['e7', { color: 'black', type: 'knight' }],
+      ['e3', { color: 'black', type: 'queen' }],
+      ['e2', { color: 'white', type: 'pawn' }],
+      ['e1', { color: 'white', type: 'king' }],
     ]);
     const pos = new Position(board);
-    expect(pos.isAttacked('e1', 'b')).toBe(false);
+    expect(pos.isAttacked('e1', 'black')).toBe(false);
   });
 
   it('empty squares can be attacked', () => {
     const pos = new Position();
-    expect(pos.isAttacked('f3', 'w')).toBe(true);
-    expect(pos.isAttacked('f6', 'b')).toBe(true);
+    expect(pos.isAttacked('f3', 'white')).toBe(true);
+    expect(pos.isAttacked('f6', 'black')).toBe(true);
   });
 
   it('can attack own color pieces', () => {
     const pos = new Position();
-    expect(pos.isAttacked('e2', 'w')).toBe(true);
+    expect(pos.isAttacked('e2', 'white')).toBe(true);
   });
 });
 
 describe('attackers', () => {
   it('returns squares of pieces attacking the target', () => {
     const board = new Map<Square, Piece>([
-      ['e1', { color: 'w', type: 'k' }],
-      ['f6', { color: 'b', type: 'n' }],
-      ['f5', { color: 'b', type: 'b' }],
+      ['e1', { color: 'white', type: 'king' }],
+      ['f6', { color: 'black', type: 'knight' }],
+      ['f5', { color: 'black', type: 'bishop' }],
     ]);
     const pos = new Position(board);
-    const atk = pos.attackers('e4', 'b');
+    const atk = pos.attackers('e4', 'black');
     expect(atk).toContain('f6');
     expect(atk).toContain('f5');
   });
 
   it('returns empty array when no attackers', () => {
-    const board = new Map<Square, Piece>([['e1', { color: 'w', type: 'k' }]]);
+    const board = new Map<Square, Piece>([
+      ['e1', { color: 'white', type: 'king' }],
+    ]);
     const pos = new Position(board);
-    expect(pos.attackers('e4', 'b')).toEqual([]);
+    expect(pos.attackers('e4', 'black')).toEqual([]);
   });
 });
 
@@ -398,35 +405,35 @@ describe('isInsufficientMaterial', () => {
 
   it('returns true for K vs K', () => {
     const board = new Map<Square, Piece>([
-      ['e1', { color: 'w', type: 'k' }],
-      ['e8', { color: 'b', type: 'k' }],
+      ['e1', { color: 'white', type: 'king' }],
+      ['e8', { color: 'black', type: 'king' }],
     ]);
     expect(new Position(board).isInsufficientMaterial).toBe(true);
   });
 
   it('returns true for K vs KB', () => {
     const board = new Map<Square, Piece>([
-      ['e1', { color: 'w', type: 'k' }],
-      ['e8', { color: 'b', type: 'k' }],
-      ['c1', { color: 'w', type: 'b' }],
+      ['e1', { color: 'white', type: 'king' }],
+      ['e8', { color: 'black', type: 'king' }],
+      ['c1', { color: 'white', type: 'bishop' }],
     ]);
     expect(new Position(board).isInsufficientMaterial).toBe(true);
   });
 
   it('returns true for K vs KN', () => {
     const board = new Map<Square, Piece>([
-      ['e1', { color: 'w', type: 'k' }],
-      ['e8', { color: 'b', type: 'k' }],
-      ['c1', { color: 'b', type: 'n' }],
+      ['e1', { color: 'white', type: 'king' }],
+      ['e8', { color: 'black', type: 'king' }],
+      ['c1', { color: 'black', type: 'knight' }],
     ]);
     expect(new Position(board).isInsufficientMaterial).toBe(true);
   });
 
   it('returns false for K vs KR', () => {
     const board = new Map<Square, Piece>([
-      ['e1', { color: 'w', type: 'k' }],
-      ['e8', { color: 'b', type: 'k' }],
-      ['a1', { color: 'w', type: 'r' }],
+      ['e1', { color: 'white', type: 'king' }],
+      ['e8', { color: 'black', type: 'king' }],
+      ['a1', { color: 'white', type: 'rook' }],
     ]);
     expect(new Position(board).isInsufficientMaterial).toBe(false);
   });
@@ -435,10 +442,10 @@ describe('isInsufficientMaterial', () => {
   it('returns true for KB vs KB with bishops on same color squares', () => {
     // 8/b7/3B4/8/8/8/8/k6K — white bishop on d6 (dark), black bishop on a7 (dark)
     const board = new Map<Square, Piece>([
-      ['h1', { color: 'w', type: 'k' }],
-      ['a1', { color: 'b', type: 'k' }],
-      ['d6', { color: 'w', type: 'b' }],
-      ['a7', { color: 'b', type: 'b' }],
+      ['h1', { color: 'white', type: 'king' }],
+      ['a1', { color: 'black', type: 'king' }],
+      ['d6', { color: 'white', type: 'bishop' }],
+      ['a7', { color: 'black', type: 'bishop' }],
     ]);
     expect(new Position(board).isInsufficientMaterial).toBe(true);
   });
@@ -446,16 +453,16 @@ describe('isInsufficientMaterial', () => {
   it('returns true for KB vs KB with many same-color bishops', () => {
     // 8/b1B1b1B1/1b1B1b1B/8/8/8/8/1k5K — all bishops on same color
     const board = new Map<Square, Piece>([
-      ['h1', { color: 'w', type: 'k' }],
-      ['b1', { color: 'b', type: 'k' }],
-      ['a7', { color: 'b', type: 'b' }],
-      ['c7', { color: 'w', type: 'b' }],
-      ['e7', { color: 'b', type: 'b' }],
-      ['g7', { color: 'w', type: 'b' }],
-      ['b6', { color: 'b', type: 'b' }],
-      ['d6', { color: 'w', type: 'b' }],
-      ['f6', { color: 'b', type: 'b' }],
-      ['h6', { color: 'w', type: 'b' }],
+      ['h1', { color: 'white', type: 'king' }],
+      ['b1', { color: 'black', type: 'king' }],
+      ['a7', { color: 'black', type: 'bishop' }],
+      ['c7', { color: 'white', type: 'bishop' }],
+      ['e7', { color: 'black', type: 'bishop' }],
+      ['g7', { color: 'white', type: 'bishop' }],
+      ['b6', { color: 'black', type: 'bishop' }],
+      ['d6', { color: 'white', type: 'bishop' }],
+      ['f6', { color: 'black', type: 'bishop' }],
+      ['h6', { color: 'white', type: 'bishop' }],
     ]);
     expect(new Position(board).isInsufficientMaterial).toBe(true);
   });
@@ -463,30 +470,30 @@ describe('isInsufficientMaterial', () => {
   it('returns false for KB vs KB with bishops on opposite color squares', () => {
     // 5k1K/7B/8/6b1/8/8/8/8 — white bishop on h7 (light), black bishop on g5 (dark)
     const board = new Map<Square, Piece>([
-      ['h8', { color: 'w', type: 'k' }],
-      ['f8', { color: 'b', type: 'k' }],
-      ['h7', { color: 'w', type: 'b' }],
-      ['g5', { color: 'b', type: 'b' }],
+      ['h8', { color: 'white', type: 'king' }],
+      ['f8', { color: 'black', type: 'king' }],
+      ['h7', { color: 'white', type: 'bishop' }],
+      ['g5', { color: 'black', type: 'bishop' }],
     ]);
     expect(new Position(board).isInsufficientMaterial).toBe(false);
   });
 
   it('returns false for KN vs KB', () => {
     const board = new Map<Square, Piece>([
-      ['h8', { color: 'w', type: 'k' }],
-      ['f8', { color: 'b', type: 'k' }],
-      ['h7', { color: 'w', type: 'n' }],
-      ['g5', { color: 'b', type: 'b' }],
+      ['h8', { color: 'white', type: 'king' }],
+      ['f8', { color: 'black', type: 'king' }],
+      ['h7', { color: 'white', type: 'knight' }],
+      ['g5', { color: 'black', type: 'bishop' }],
     ]);
     expect(new Position(board).isInsufficientMaterial).toBe(false);
   });
 
   it('returns false for KN vs KN', () => {
     const board = new Map<Square, Piece>([
-      ['h8', { color: 'w', type: 'k' }],
-      ['f8', { color: 'b', type: 'k' }],
-      ['h7', { color: 'w', type: 'n' }],
-      ['e5', { color: 'b', type: 'n' }],
+      ['h8', { color: 'white', type: 'king' }],
+      ['f8', { color: 'black', type: 'king' }],
+      ['h7', { color: 'white', type: 'knight' }],
+      ['e5', { color: 'black', type: 'knight' }],
     ]);
     expect(new Position(board).isInsufficientMaterial).toBe(false);
   });
@@ -498,41 +505,45 @@ describe('isValid', () => {
   });
 
   it('returns false when white king is missing', () => {
-    const board = new Map<Square, Piece>([['e8', { color: 'b', type: 'k' }]]);
+    const board = new Map<Square, Piece>([
+      ['e8', { color: 'black', type: 'king' }],
+    ]);
     expect(new Position(board).isValid).toBe(false);
   });
 
   it('returns false when black king is missing', () => {
-    const board = new Map<Square, Piece>([['e1', { color: 'w', type: 'k' }]]);
+    const board = new Map<Square, Piece>([
+      ['e1', { color: 'white', type: 'king' }],
+    ]);
     expect(new Position(board).isValid).toBe(false);
   });
 
   it('returns false when a pawn is on rank 1', () => {
     const board = new Map<Square, Piece>([
-      ['e1', { color: 'w', type: 'k' }],
-      ['e8', { color: 'b', type: 'k' }],
-      ['a1', { color: 'w', type: 'p' }],
+      ['e1', { color: 'white', type: 'king' }],
+      ['e8', { color: 'black', type: 'king' }],
+      ['a1', { color: 'white', type: 'pawn' }],
     ]);
     expect(new Position(board).isValid).toBe(false);
   });
 
   it('returns false when a pawn is on rank 8', () => {
     const board = new Map<Square, Piece>([
-      ['e1', { color: 'w', type: 'k' }],
-      ['e8', { color: 'b', type: 'k' }],
-      ['a8', { color: 'b', type: 'p' }],
+      ['e1', { color: 'white', type: 'king' }],
+      ['e8', { color: 'black', type: 'king' }],
+      ['a8', { color: 'black', type: 'pawn' }],
     ]);
     expect(new Position(board).isValid).toBe(false);
   });
 
   it('returns false when the side not to move is in check', () => {
     const board = new Map<Square, Piece>([
-      ['e1', { color: 'w', type: 'k' }],
-      ['e8', { color: 'b', type: 'k' }],
-      ['e2', { color: 'w', type: 'r' }],
+      ['e1', { color: 'white', type: 'king' }],
+      ['e8', { color: 'black', type: 'king' }],
+      ['e2', { color: 'white', type: 'rook' }],
     ]);
     // It is white's turn, but black king is in check from white rook — invalid
-    const pos = new Position(board, { turn: 'w' });
+    const pos = new Position(board, { turn: 'white' });
     expect(pos.isValid).toBe(false);
   });
 });
@@ -544,20 +555,20 @@ describe('isCheck', () => {
 
   it('returns true when king is attacked by a rook on same file', () => {
     const board = new Map<Square, Piece>([
-      ['e1', { color: 'w', type: 'k' }],
-      ['e8', { color: 'b', type: 'r' }],
+      ['e1', { color: 'white', type: 'king' }],
+      ['e8', { color: 'black', type: 'rook' }],
     ]);
-    const pos = new Position(board, { turn: 'w' });
+    const pos = new Position(board, { turn: 'white' });
     expect(pos.isCheck).toBe(true);
   });
 
   it('returns false when sliding attacker is blocked', () => {
     const board = new Map<Square, Piece>([
-      ['e1', { color: 'w', type: 'k' }],
-      ['e4', { color: 'w', type: 'p' }],
-      ['e8', { color: 'b', type: 'r' }],
+      ['e1', { color: 'white', type: 'king' }],
+      ['e4', { color: 'white', type: 'pawn' }],
+      ['e8', { color: 'black', type: 'rook' }],
     ]);
-    const pos = new Position(board, { turn: 'w' });
+    const pos = new Position(board, { turn: 'white' });
     expect(pos.isCheck).toBe(false);
   });
 
@@ -565,57 +576,57 @@ describe('isCheck', () => {
   it('returns true when black is giving check via queen', () => {
     // rnb1kbnr/pppp1ppp/8/8/4Pp1q/2N5/PPPP2PP/R1BQKBNR w KQkq - 2 4
     const board = new Map<Square, Piece>([
-      ['a8', { color: 'b', type: 'r' }],
-      ['b8', { color: 'b', type: 'n' }],
-      ['c8', { color: 'b', type: 'b' }],
-      ['e8', { color: 'b', type: 'k' }],
-      ['f8', { color: 'b', type: 'b' }],
-      ['g8', { color: 'b', type: 'n' }],
-      ['h8', { color: 'b', type: 'r' }],
-      ['a7', { color: 'b', type: 'p' }],
-      ['b7', { color: 'b', type: 'p' }],
-      ['c7', { color: 'b', type: 'p' }],
-      ['d7', { color: 'b', type: 'p' }],
-      ['g7', { color: 'b', type: 'p' }],
-      ['h7', { color: 'b', type: 'p' }],
-      ['h4', { color: 'b', type: 'q' }],
-      ['f4', { color: 'b', type: 'p' }],
-      ['e4', { color: 'w', type: 'p' }],
-      ['c3', { color: 'w', type: 'n' }],
-      ['a2', { color: 'w', type: 'p' }],
-      ['b2', { color: 'w', type: 'p' }],
-      ['c2', { color: 'w', type: 'p' }],
-      ['d2', { color: 'w', type: 'p' }],
-      ['g2', { color: 'w', type: 'p' }],
-      ['h2', { color: 'w', type: 'p' }],
-      ['a1', { color: 'w', type: 'r' }],
-      ['c1', { color: 'w', type: 'b' }],
-      ['d1', { color: 'w', type: 'q' }],
-      ['e1', { color: 'w', type: 'k' }],
+      ['a8', { color: 'black', type: 'rook' }],
+      ['b8', { color: 'black', type: 'knight' }],
+      ['c8', { color: 'black', type: 'bishop' }],
+      ['e8', { color: 'black', type: 'king' }],
+      ['f8', { color: 'black', type: 'bishop' }],
+      ['g8', { color: 'black', type: 'knight' }],
+      ['h8', { color: 'black', type: 'rook' }],
+      ['a7', { color: 'black', type: 'pawn' }],
+      ['b7', { color: 'black', type: 'pawn' }],
+      ['c7', { color: 'black', type: 'pawn' }],
+      ['d7', { color: 'black', type: 'pawn' }],
+      ['g7', { color: 'black', type: 'pawn' }],
+      ['h7', { color: 'black', type: 'pawn' }],
+      ['h4', { color: 'black', type: 'queen' }],
+      ['f4', { color: 'black', type: 'pawn' }],
+      ['e4', { color: 'white', type: 'pawn' }],
+      ['c3', { color: 'white', type: 'knight' }],
+      ['a2', { color: 'white', type: 'pawn' }],
+      ['b2', { color: 'white', type: 'pawn' }],
+      ['c2', { color: 'white', type: 'pawn' }],
+      ['d2', { color: 'white', type: 'pawn' }],
+      ['g2', { color: 'white', type: 'pawn' }],
+      ['h2', { color: 'white', type: 'pawn' }],
+      ['a1', { color: 'white', type: 'rook' }],
+      ['c1', { color: 'white', type: 'bishop' }],
+      ['d1', { color: 'white', type: 'queen' }],
+      ['e1', { color: 'white', type: 'king' }],
     ]);
-    const pos = new Position(board, { turn: 'w' });
+    const pos = new Position(board, { turn: 'white' });
     expect(pos.isCheck).toBe(true);
   });
 
   it('returns true for checkmate position (checkmate is also check)', () => {
     // R3k3/8/4K3/8/8/8/8/8 b - - 0 1 — black king checkmated by white rook
     const board = new Map<Square, Piece>([
-      ['a8', { color: 'w', type: 'r' }],
-      ['e8', { color: 'b', type: 'k' }],
-      ['e6', { color: 'w', type: 'k' }],
+      ['a8', { color: 'white', type: 'rook' }],
+      ['e8', { color: 'black', type: 'king' }],
+      ['e6', { color: 'white', type: 'king' }],
     ]);
-    const pos = new Position(board, { turn: 'b' });
+    const pos = new Position(board, { turn: 'black' });
     expect(pos.isCheck).toBe(true);
   });
 
   it('returns false for stalemate position (stalemate is not check)', () => {
     // 4k3/4P3/4K3/8/8/8/8/8 b - - 0 1 — black king stalemated
     const board = new Map<Square, Piece>([
-      ['e8', { color: 'b', type: 'k' }],
-      ['e7', { color: 'w', type: 'p' }],
-      ['e6', { color: 'w', type: 'k' }],
+      ['e8', { color: 'black', type: 'king' }],
+      ['e7', { color: 'white', type: 'pawn' }],
+      ['e6', { color: 'white', type: 'king' }],
     ]);
-    const pos = new Position(board, { turn: 'b' });
+    const pos = new Position(board, { turn: 'black' });
     expect(pos.isCheck).toBe(false);
   });
 });
@@ -632,8 +643,8 @@ describe('hash', () => {
   it('returns different hashes for different positions', () => {
     const pos1 = new Position();
     const board = new Map<Square, Piece>([
-      ['e1', { color: 'w', type: 'k' }],
-      ['e8', { color: 'b', type: 'k' }],
+      ['e1', { color: 'white', type: 'king' }],
+      ['e8', { color: 'black', type: 'king' }],
     ]);
     const pos2 = new Position(board);
     expect(pos1.hash).not.toBe(pos2.hash);
@@ -641,11 +652,11 @@ describe('hash', () => {
 
   it('returns different hashes for different turns', () => {
     const board = new Map<Square, Piece>([
-      ['e1', { color: 'w', type: 'k' }],
-      ['e8', { color: 'b', type: 'k' }],
+      ['e1', { color: 'white', type: 'king' }],
+      ['e8', { color: 'black', type: 'king' }],
     ]);
-    const posW = new Position(board, { turn: 'w' });
-    const posB = new Position(board, { turn: 'b' });
+    const posW = new Position(board, { turn: 'white' });
+    const posB = new Position(board, { turn: 'black' });
     expect(posW.hash).not.toBe(posB.hash);
   });
 });
@@ -668,11 +679,11 @@ describe('derive', () => {
     const derived = pos.derive({
       board: [
         ['e2', undefined],
-        ['e4', { color: 'w', type: 'p' }],
+        ['e4', { color: 'white', type: 'pawn' }],
       ],
     });
     expect(derived.piece('e2')).toBeUndefined();
-    expect(derived.piece('e4')).toEqual({ color: 'w', type: 'p' });
+    expect(derived.piece('e4')).toEqual({ color: 'white', type: 'pawn' });
   });
 
   it('does not modify the original position', () => {
@@ -680,14 +691,14 @@ describe('derive', () => {
     pos.derive({
       board: [['e2', undefined]],
     });
-    expect(pos.piece('e2')).toEqual({ color: 'w', type: 'p' });
+    expect(pos.piece('e2')).toEqual({ color: 'white', type: 'pawn' });
   });
 
   it('overrides turn', () => {
     const pos = new Position();
-    const derived = pos.derive({ turn: 'b' });
-    expect(derived.turn).toBe('b');
-    expect(pos.turn).toBe('w');
+    const derived = pos.derive({ turn: 'black' });
+    expect(derived.turn).toBe('black');
+    expect(pos.turn).toBe('white');
   });
 
   it('overrides castling rights', () => {
@@ -721,16 +732,16 @@ describe('derive', () => {
     const derived = pos.derive({
       board: [
         ['e2', undefined],
-        ['e4', { color: 'w', type: 'p' }],
+        ['e4', { color: 'white', type: 'pawn' }],
       ],
-      turn: 'b',
+      turn: 'black',
       halfmoveClock: 0,
       fullmoveNumber: 1,
       enPassantSquare: 'e3',
     });
     expect(derived.piece('e2')).toBeUndefined();
-    expect(derived.piece('e4')).toEqual({ color: 'w', type: 'p' });
-    expect(derived.turn).toBe('b');
+    expect(derived.piece('e4')).toEqual({ color: 'white', type: 'pawn' });
+    expect(derived.turn).toBe('black');
     expect(derived.enPassantSquare).toBe('e3');
   });
 
@@ -738,21 +749,21 @@ describe('derive', () => {
     const pos = new Position();
     const derived = pos.derive({
       board: [
-        ['e4', { color: 'w', type: 'p' }],
-        ['e4', { color: 'b', type: 'q' }],
+        ['e4', { color: 'white', type: 'pawn' }],
+        ['e4', { color: 'black', type: 'queen' }],
       ],
     });
-    expect(derived.piece('e4')).toEqual({ color: 'b', type: 'q' });
+    expect(derived.piece('e4')).toEqual({ color: 'black', type: 'queen' });
   });
 
   it('supports chained derive calls', () => {
     const pos = new Position();
     const derived = pos
-      .derive({ board: [['e2', undefined]], turn: 'b' })
-      .derive({ board: [['e4', { color: 'w', type: 'p' }]] });
+      .derive({ board: [['e2', undefined]], turn: 'black' })
+      .derive({ board: [['e4', { color: 'white', type: 'pawn' }]] });
     expect(derived.piece('e2')).toBeUndefined();
-    expect(derived.piece('e4')).toEqual({ color: 'w', type: 'p' });
-    expect(derived.turn).toBe('b');
+    expect(derived.piece('e4')).toEqual({ color: 'white', type: 'pawn' });
+    expect(derived.turn).toBe('black');
   });
 
   it('produces correct Zobrist hash', () => {
@@ -760,17 +771,17 @@ describe('derive', () => {
     const derived = pos.derive({
       board: [
         ['e2', undefined],
-        ['e4', { color: 'w', type: 'p' }],
+        ['e4', { color: 'white', type: 'pawn' }],
       ],
-      turn: 'b',
+      turn: 'black',
       enPassantSquare: 'e3',
     });
     // reconstruct same position via constructor
     const board = new Map(pos.pieces());
     board.delete('e2');
-    board.set('e4', { color: 'w', type: 'p' });
+    board.set('e4', { color: 'white', type: 'pawn' });
     const expected = new Position(board, {
-      turn: 'b',
+      turn: 'black',
       enPassantSquare: 'e3',
     });
     expect(derived.hash).toBe(expected.hash);

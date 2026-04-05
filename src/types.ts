@@ -1,17 +1,17 @@
-/** Side to move — `'w'` for white, `'b'` for black. */
-type Color = 'b' | 'w';
+/** Side to move — `'white'` or `'black'`. */
+type Color = 'black' | 'white';
 
 /** Board file (column), `'a'` through `'h'`. */
 type File = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h';
 
 /** Chess piece type: bishop, king, knight, pawn, queen, or rook. */
-type PieceType = 'b' | 'k' | 'n' | 'p' | 'q' | 'r';
-
-/** Piece types a pawn can promote to. */
-type PromotionPieceType = 'b' | 'n' | 'q' | 'r';
+type PieceType = 'bishop' | 'king' | 'knight' | 'pawn' | 'queen' | 'rook';
 
 /** Board rank (row), `'1'` through `'8'`. */
 type Rank = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8';
+
+/** En passant target square — always on rank 3 or rank 6. */
+type EnPassantSquare = `${File}${'3' | '6'}`;
 
 /**
  * A board square, e.g. `'e4'`. Combination of {@link File} and {@link Rank}.
@@ -55,23 +55,13 @@ interface PositionOptions {
   /** Castling availability. Defaults to all four castling moves available. */
   castlingRights?: CastlingRights;
   /** En passant target square, if any. */
-  enPassantSquare?: Square;
+  enPassantSquare?: EnPassantSquare;
   /** Fullmove counter. Increments after black's move. Defaults to `1`. */
   fullmoveNumber?: number;
   /** Halfmove clock for the fifty-move rule. Defaults to `0`. */
   halfmoveClock?: number;
-  /** Side to move. Defaults to `'w'`. */
+  /** Side to move. Defaults to `'white'`. */
   turn?: Color;
-}
-
-/** A chess move — origin, destination, and optional promotion. */
-interface Move {
-  /** Square the piece moves from. */
-  from: Square;
-  /** Promotion piece type, or `undefined` if not a promotion. */
-  promotion: PromotionPieceType | undefined;
-  /** Square the piece moves to. */
-  to: Square;
 }
 
 /** A chess piece — color and type. */
@@ -86,12 +76,11 @@ export type {
   CastlingRights,
   Color,
   DeriveOptions,
+  EnPassantSquare,
   File,
-  Move,
   Piece,
   PieceType,
   PositionOptions,
-  PromotionPieceType,
   Rank,
   Square,
   SquareColor,

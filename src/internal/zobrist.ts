@@ -32,8 +32,8 @@ const PIECE_TABLE: Record<
 ) as Record<Square, Partial<Record<PieceType, Record<Color, bigint>>>>;
 
 const TURN_TABLE: Record<Color, bigint> = {
-  b: next(),
-  w: next(),
+  black: next(),
+  white: next(),
 };
 
 const CASTLING_TABLE: Record<string, bigint> = {
