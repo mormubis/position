@@ -60,9 +60,16 @@ interface PositionOptions {
   castlingRights?: CastlingRights;
   /** En passant target square, if any. */
   enPassantSquare?: EnPassantSquare;
-  /** Fullmove counter. Increments after black's move. Defaults to `1`. */
+  /**
+   * Game turn counter — starts at `1` and increments after each black move.
+   * After `1. e4 e5 2. Nf3` the fullmove number is `2`. Defaults to `1`.
+   */
   fullmoveNumber?: number;
-  /** Halfmove clock for the fifty-move rule. Defaults to `0`. */
+  /**
+   * Number of half-moves since the last pawn advance or capture. Resets to
+   * `0` on every pawn move or capture. When it reaches `100` (50 full moves
+   * per side) either player may claim a draw. Defaults to `0`.
+   */
   halfmoveClock?: number;
   /** Side to move. Defaults to `'white'`. */
   turn?: Color;

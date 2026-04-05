@@ -79,12 +79,17 @@ export class Position {
     return this.#enPassantSquare;
   }
 
-  /** Fullmove counter — increments after black's move. */
+  /**
+   * Game turn counter — starts at `1` and increments after each black move.
+   */
   get fullmoveNumber(): number {
     return this.#fullmoveNumber;
   }
 
-  /** Halfmove clock for the fifty-move rule. */
+  /**
+   * Number of half-moves since the last pawn advance or capture. Resets on
+   * every pawn move or capture. A draw can be claimed when it reaches `100`.
+   */
   get halfmoveClock(): number {
     return this.#halfmoveClock;
   }
