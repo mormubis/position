@@ -34,9 +34,6 @@ console.log(pos.isCheck); // false
 const piece = pos.piece('e1'); // { color: 'w', type: 'k' }
 const whites = pos.pieces('w'); // Map<Square, Piece> of all white pieces
 
-// Find all squares a piece occupies
-const whiteKing = pos.findPiece({ color: 'w', type: 'k' }); // ['e1']
-
 // Attack queries
 const attackers = pos.attackers('e5', 'b'); // squares of black pieces attacking e5
 const attacked = pos.isAttacked('f7', 'w'); // true if white attacks f7
@@ -105,14 +102,6 @@ const next = pos.derive({
 
 // clone
 const clone = pos.derive();
-```
-
-#### `findPiece(piece): Square[]`
-
-Returns all squares occupied by the given piece.
-
-```typescript
-pos.findPiece({ color: 'w', type: 'q' }); // ['d1']
 ```
 
 #### `isAttacked(square, color): boolean`

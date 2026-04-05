@@ -342,21 +342,6 @@ export class Position {
   }
 
   /**
-   * Returns all squares occupied by the given piece.
-   *
-   * @param piece - The piece to find (color and type).
-   */
-  findPiece(piece: Piece): Square[] {
-    const result: Square[] = [];
-    for (const [sq, p] of this.#board) {
-      if (p.color === piece.color && p.type === piece.type) {
-        result.push(sq);
-      }
-    }
-    return result;
-  }
-
-  /**
    * Returns `true` if any piece of the given color attacks the target square.
    *
    * @param square - The target square.

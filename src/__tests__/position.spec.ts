@@ -87,54 +87,6 @@ describe('pieces', () => {
   });
 });
 
-describe('findPiece', () => {
-  it('returns squares with matching piece', () => {
-    const pos = new Position();
-    const squares = pos.findPiece({ color: 'white', type: 'rook' });
-    expect(squares).toHaveLength(2);
-    expect(squares).toContain('a1');
-    expect(squares).toContain('h1');
-  });
-
-  it('returns empty array when piece not found', () => {
-    const board = new Map<Square, Piece>([
-      ['e1', { color: 'white', type: 'king' }],
-      ['e8', { color: 'black', type: 'king' }],
-    ]);
-    const pos = new Position(board);
-    expect(pos.findPiece({ color: 'white', type: 'queen' })).toEqual([]);
-  });
-
-  // Ported from chess.js findPiece test suite
-  it('returns single square for unique piece (kings)', () => {
-    const pos = new Position();
-    expect(pos.findPiece({ color: 'white', type: 'king' })).toEqual(['e1']);
-    expect(pos.findPiece({ color: 'black', type: 'king' })).toEqual(['e8']);
-  });
-
-  it('returns ordered squares for knights', () => {
-    const pos = new Position();
-    expect(pos.findPiece({ color: 'white', type: 'knight' })).toEqual([
-      'b1',
-      'g1',
-    ]);
-  });
-
-  it('returns all 8 squares for black pawns in order', () => {
-    const pos = new Position();
-    expect(pos.findPiece({ color: 'black', type: 'pawn' })).toEqual([
-      'a7',
-      'b7',
-      'c7',
-      'd7',
-      'e7',
-      'f7',
-      'g7',
-      'h7',
-    ]);
-  });
-});
-
 describe('isAttacked', () => {
   it('returns true when a white pawn attacks the square diagonally', () => {
     const board = new Map<Square, Piece>([
