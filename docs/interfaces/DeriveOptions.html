@@ -98,7 +98,7 @@
               <a href="PositionOptions.html" class="tsd-kind-interface"
                 >PositionOptions</a
               >
-              with a <code>board</code> field for applying piece changes.
+              with a <code>changes</code> field for applying piece changes.
             </p>
           </div>
         </section>
@@ -107,8 +107,17 @@
           <span class="tsd-kind-interface">DeriveOptions</span>
           <span class="tsd-signature-symbol">{</span><br />    <a
             class="tsd-kind-property"
-            href="#board"
-            >board</a
+            href="#castlingrights"
+            >castlingRights</a
+          ><span class="tsd-signature-symbol">?:</span>
+          <a
+            href="CastlingRights.html"
+            class="tsd-signature-type tsd-kind-interface"
+            >CastlingRights</a
+          ><span class="tsd-signature-symbol">;</span><br />    <a
+            class="tsd-kind-property"
+            href="#changes"
+            >changes</a
           ><span class="tsd-signature-symbol">?:</span>
           <span class="tsd-signature-symbol">[</span
           ><a
@@ -123,15 +132,6 @@
           <span class="tsd-signature-type">undefined</span
           ><span class="tsd-signature-symbol">]</span
           ><span class="tsd-signature-symbol">[]</span
-          ><span class="tsd-signature-symbol">;</span><br />    <a
-            class="tsd-kind-property"
-            href="#castlingrights"
-            >castlingRights</a
-          ><span class="tsd-signature-symbol">?:</span>
-          <a
-            href="CastlingRights.html"
-            class="tsd-signature-type tsd-kind-interface"
-            >CastlingRights</a
           ><span class="tsd-signature-symbol">;</span><br />    <a
             class="tsd-kind-property"
             href="#enpassantsquare"
@@ -192,7 +192,7 @@
             <li>
               Defined in
               <a
-                href="https://github.com/mormubis/position/blob/062239f1b2a45a711f74a335187d8f91e70ff3d0/src/types.ts#L42"
+                href="https://github.com/mormubis/position/blob/b51aeed3f699ed323ed4b9eb0232f154b5b2407e/src/types.ts#L42"
                 >types.ts:42</a
               >
             </li>
@@ -217,15 +217,6 @@
                 <section class="tsd-index-section">
                   <h3 class="tsd-index-heading">Properties</h3>
                   <div class="tsd-index-list">
-                    <a href="#board" class="tsd-index-link"
-                      ><svg
-                        class="tsd-kind-icon"
-                        viewBox="0 0 24 24"
-                        aria-label="Property"
-                      >
-                        <use href="../assets/icons.svg#icon-1024"></use></svg
-                      ><span>board?</span></a
-                    >
                     <a
                       href="#castlingrights"
                       class="tsd-index-link tsd-is-inherited"
@@ -236,6 +227,15 @@
                       >
                         <use href="../assets/icons.svg#icon-1024"></use></svg
                       ><span>castling<wbr />Rights?</span></a
+                    >
+                    <a href="#changes" class="tsd-index-link"
+                      ><svg
+                        class="tsd-kind-icon"
+                        viewBox="0 0 24 24"
+                        aria-label="Property"
+                      >
+                        <use href="../assets/icons.svg#icon-1024"></use></svg
+                      ><span>changes?</span></a
                     >
                     <a
                       href="#enpassantsquare"
@@ -299,52 +299,6 @@
             <h2>Properties</h2>
           </summary>
           <section>
-            <section class="tsd-panel tsd-member">
-              <h3 class="tsd-anchor-link" id="board">
-                <code class="tsd-tag">Optional</code><span>board</span
-                ><a href="#board" aria-label="Permalink" class="tsd-anchor-icon"
-                  ><svg viewBox="0 0 24 24" aria-hidden="true">
-                    <use href="../assets/icons.svg#icon-anchor"></use></svg
-                ></a>
-              </h3>
-              <div class="tsd-signature">
-                <span class="tsd-kind-property">board</span
-                ><span class="tsd-signature-symbol">?:</span>
-                <span class="tsd-signature-symbol">[</span
-                ><a
-                  href="../types/Square.html"
-                  class="tsd-signature-type tsd-kind-type-alias"
-                  >Square</a
-                ><span class="tsd-signature-symbol">,</span>
-                <a
-                  href="Piece.html"
-                  class="tsd-signature-type tsd-kind-interface"
-                  >Piece</a
-                >
-                <span class="tsd-signature-symbol">|</span>
-                <span class="tsd-signature-type">undefined</span
-                ><span class="tsd-signature-symbol">]</span
-                ><span class="tsd-signature-symbol">[]</span>
-              </div>
-              <div class="tsd-comment tsd-typography">
-                <p>
-                  Board changes as <code>[square, piece]</code> tuples. Set
-                  piece to <code>undefined</code> to clear a square. Only
-                  changed squares need to be listed.
-                </p>
-              </div>
-              <aside class="tsd-sources">
-                <ul>
-                  <li>
-                    Defined in
-                    <a
-                      href="https://github.com/mormubis/position/blob/062239f1b2a45a711f74a335187d8f91e70ff3d0/src/types.ts#L47"
-                      >types.ts:47</a
-                    >
-                  </li>
-                </ul>
-              </aside>
-            </section>
             <section class="tsd-panel tsd-member tsd-is-inherited">
               <h3 class="tsd-anchor-link" id="castlingrights">
                 <code class="tsd-tag">Optional</code
@@ -384,8 +338,57 @@
                   <li>
                     Defined in
                     <a
-                      href="https://github.com/mormubis/position/blob/062239f1b2a45a711f74a335187d8f91e70ff3d0/src/types.ts#L56"
+                      href="https://github.com/mormubis/position/blob/b51aeed3f699ed323ed4b9eb0232f154b5b2407e/src/types.ts#L56"
                       >types.ts:56</a
+                    >
+                  </li>
+                </ul>
+              </aside>
+            </section>
+            <section class="tsd-panel tsd-member">
+              <h3 class="tsd-anchor-link" id="changes">
+                <code class="tsd-tag">Optional</code><span>changes</span
+                ><a
+                  href="#changes"
+                  aria-label="Permalink"
+                  class="tsd-anchor-icon"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <use href="../assets/icons.svg#icon-anchor"></use></svg
+                ></a>
+              </h3>
+              <div class="tsd-signature">
+                <span class="tsd-kind-property">changes</span
+                ><span class="tsd-signature-symbol">?:</span>
+                <span class="tsd-signature-symbol">[</span
+                ><a
+                  href="../types/Square.html"
+                  class="tsd-signature-type tsd-kind-type-alias"
+                  >Square</a
+                ><span class="tsd-signature-symbol">,</span>
+                <a
+                  href="Piece.html"
+                  class="tsd-signature-type tsd-kind-interface"
+                  >Piece</a
+                >
+                <span class="tsd-signature-symbol">|</span>
+                <span class="tsd-signature-type">undefined</span
+                ><span class="tsd-signature-symbol">]</span
+                ><span class="tsd-signature-symbol">[]</span>
+              </div>
+              <div class="tsd-comment tsd-typography">
+                <p>
+                  Piece changes as <code>[square, piece]</code> tuples. Set
+                  piece to <code>undefined</code> to clear a square. Only
+                  changed squares need to be listed.
+                </p>
+              </div>
+              <aside class="tsd-sources">
+                <ul>
+                  <li>
+                    Defined in
+                    <a
+                      href="https://github.com/mormubis/position/blob/b51aeed3f699ed323ed4b9eb0232f154b5b2407e/src/types.ts#L47"
+                      >types.ts:47</a
                     >
                   </li>
                 </ul>
@@ -427,7 +430,7 @@
                   <li>
                     Defined in
                     <a
-                      href="https://github.com/mormubis/position/blob/062239f1b2a45a711f74a335187d8f91e70ff3d0/src/types.ts#L58"
+                      href="https://github.com/mormubis/position/blob/b51aeed3f699ed323ed4b9eb0232f154b5b2407e/src/types.ts#L58"
                       >types.ts:58</a
                     >
                   </li>
@@ -469,7 +472,7 @@
                   <li>
                     Defined in
                     <a
-                      href="https://github.com/mormubis/position/blob/062239f1b2a45a711f74a335187d8f91e70ff3d0/src/types.ts#L60"
+                      href="https://github.com/mormubis/position/blob/b51aeed3f699ed323ed4b9eb0232f154b5b2407e/src/types.ts#L60"
                       >types.ts:60</a
                     >
                   </li>
@@ -511,7 +514,7 @@
                   <li>
                     Defined in
                     <a
-                      href="https://github.com/mormubis/position/blob/062239f1b2a45a711f74a335187d8f91e70ff3d0/src/types.ts#L62"
+                      href="https://github.com/mormubis/position/blob/b51aeed3f699ed323ed4b9eb0232f154b5b2407e/src/types.ts#L62"
                       >types.ts:62</a
                     >
                   </li>
@@ -550,7 +553,7 @@
                   <li>
                     Defined in
                     <a
-                      href="https://github.com/mormubis/position/blob/062239f1b2a45a711f74a335187d8f91e70ff3d0/src/types.ts#L64"
+                      href="https://github.com/mormubis/position/blob/b51aeed3f699ed323ed4b9eb0232f154b5b2407e/src/types.ts#L64"
                       >types.ts:64</a
                     >
                   </li>
@@ -720,15 +723,7 @@
                   >Properties
                 </summary>
                 <div>
-                  <a href="#board"
-                    ><svg
-                      class="tsd-kind-icon"
-                      viewBox="0 0 24 24"
-                      aria-label="Property"
-                    >
-                      <use href="../assets/icons.svg#icon-1024"></use></svg
-                    ><span>board</span></a
-                  ><a href="#castlingrights" class="tsd-is-inherited"
+                  <a href="#castlingrights" class="tsd-is-inherited"
                     ><svg
                       class="tsd-kind-icon"
                       viewBox="0 0 24 24"
@@ -736,6 +731,14 @@
                     >
                       <use href="../assets/icons.svg#icon-1024"></use></svg
                     ><span>castling<wbr />Rights</span></a
+                  ><a href="#changes"
+                    ><svg
+                      class="tsd-kind-icon"
+                      viewBox="0 0 24 24"
+                      aria-label="Property"
+                    >
+                      <use href="../assets/icons.svg#icon-1024"></use></svg
+                    ><span>changes</span></a
                   ><a href="#enpassantsquare" class="tsd-is-inherited"
                     ><svg
                       class="tsd-kind-icon"
