@@ -57,7 +57,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsdown",
-    "docs:build": "typedoc src/index.ts --out docs --entryPointStrategy expand --plugin ./typedoc-plugin-collapse-square.mjs",
+    "docs": "typedoc src/index.ts --out docs --entryPointStrategy expand --plugin ./typedoc-plugin-collapse-square.mjs",
     "format": "pnpm run format:ci --write",
     "format:ci": "prettier -l \"**/*.+(css|js|json|jsx|md|mjs|mts|ts|tsx|yml|yaml)\"",
     "lint": "pnpm run lint:style && pnpm run lint:types",
