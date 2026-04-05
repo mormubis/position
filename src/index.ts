@@ -8,6 +8,7 @@ export type {
   PieceType,
   PositionOptions,
   Rank,
+  SideCastlingRights,
   Square,
   SquareColor,
 } from './types.js';
