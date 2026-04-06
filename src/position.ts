@@ -1,4 +1,20 @@
-import { OFF_BOARD, boardFromMap, squareToIndex } from './board.js';
+import {
+  BISHOP,
+  BLACK,
+  COLOR_MASK,
+  KING,
+  KNIGHT,
+  OFF_BOARD,
+  PAWN,
+  QUEEN,
+  ROOK,
+  TYPE_MASK,
+  WHITE,
+  bitmaskToPiece,
+  indexToSquare,
+  pieceToBitmask,
+  squareToIndex,
+} from './board.js';
 import {
   BISHOP_MOVES,
   KING_MOVES,
@@ -17,17 +33,10 @@ import type {
   File,
   Piece,
   PieceMove,
+  PieceType,
   PositionOptions,
   Square,
 } from './types.js';
-
-const FILES = 'abcdefgh';
-
-function indexToSquare(index: number): Square {
-  const file = index & 0x07;
-  const rank = 8 - ((index >> 4) & 0x07);
-  return `${FILES[file]}${rank}` as Square;
-}
 
 const DEFAULT_OPTIONS: Required<Omit<PositionOptions, 'enPassantSquare'>> &
   Pick<PositionOptions, 'enPassantSquare'> = {
@@ -41,73 +50,61 @@ const DEFAULT_OPTIONS: Required<Omit<PositionOptions, 'enPassantSquare'>> &
   turn: 'white',
 };
 
-/**
- * An immutable chess position — board state, turn, castling rights,
- * en passant square, and move counters.
- *
- * Query the position with getters and methods. Produce new positions
- * with {@link Position.derive | derive}.
- */
+const NUM_TO_PIECE_TYPE: PieceType[] = [
+  'pawn',
+  'pawn',
+  'knight',
+  'bishop',
+  'rook',
+  'queen',
+  'king',
+];
+
 export class Position {
-  readonly #board: Map<Square, Piece>;
-  readonly #castlingRights: CastlingRights;
-  readonly #enPassantSquare: EnPassantSquare | undefined;
-  readonly #fullmoveNumber: number;
-  readonly #halfmoveClock: number;
-  #board0x88: (Piece | undefined)[] | undefined;
+  readonly castlingRights: CastlingRights;
+  readonly enPassantSquare: EnPassantSquare | undefined;
+  readonly fullmoveNumber: number;
+  readonly halfmoveClock: number;
+  readonly turn: Color;
+
+  #board: number[];
   #hash: string | undefined;
-  #isCheckCache: boolean | undefined;
-  readonly #turn: Color;
+  #isCheck: boolean | undefined;
 
-  /**
-   * Creates a new position.
-   *
-   * @param board - Piece placement. Defaults to an empty board.
-   * @param options - Turn, castling rights, en passant, and move counters.
-   */
   constructor(board?: Map<Square, Piece>, options?: PositionOptions) {
-    this.#board = new Map(board);
+    this.#board = Array.from<unknown, number>({ length: 128 }, () => 0);
+
+    if (board !== undefined) {
+      for (const [square, p] of board) {
+        this.#board[squareToIndex(square)] = pieceToBitmask(p);
+      }
+    }
+
     const options_ = { ...DEFAULT_OPTIONS, ...options };
-    this.#castlingRights = options_.castlingRights;
-    this.#enPassantSquare = options_.enPassantSquare;
-    this.#fullmoveNumber = options_.fullmoveNumber;
-    this.#halfmoveClock = options_.halfmoveClock;
-    this.#turn = options_.turn;
+    this.castlingRights = options_.castlingRights;
+    this.enPassantSquare = options_.enPassantSquare;
+    this.fullmoveNumber = options_.fullmoveNumber;
+    this.halfmoveClock = options_.halfmoveClock;
+    this.turn = options_.turn;
   }
 
-  /** Which castling moves remain available. */
-  get castlingRights(): CastlingRights {
-    return this.#castlingRights;
+  static #from(
+    board: number[],
+    options: {
+      castlingRights: CastlingRights;
+      enPassantSquare: EnPassantSquare | undefined;
+      fullmoveNumber: number;
+      halfmoveClock: number;
+      turn: Color;
+    },
+  ): Position {
+    const pos = new Position(undefined, options);
+    pos.#board = board;
+    pos.#hash = undefined;
+    pos.#isCheck = undefined;
+    return pos;
   }
 
-  /** En passant target square, or `undefined` if none. */
-  get enPassantSquare(): EnPassantSquare | undefined {
-    return this.#enPassantSquare;
-  }
-
-  /**
-   * Game turn counter — starts at `1` and increments after each black move.
-   */
-  get fullmoveNumber(): number {
-    return this.#fullmoveNumber;
-  }
-
-  /**
-   * Number of half-moves since the last pawn advance or capture. Resets on
-   * every pawn move or capture. A draw can be claimed when it reaches `100`.
-   */
-  get halfmoveClock(): number {
-    return this.#halfmoveClock;
-  }
-
-  /**
-   * A Zobrist hash of the position as a 16-character hex string.
-   * Computed once and cached. Two positions with the same hash are
-   * considered identical (with negligible collision probability).
-   *
-   * @remarks The hash algorithm and format are not stable across major
-   * versions. Do not persist hashes across version upgrades.
-   */
   get hash(): string {
     if (this.#hash !== undefined) {
       return this.#hash;
@@ -115,13 +112,24 @@ export class Position {
 
     let h = 0n;
 
-    for (const [sq, p] of this.#board) {
-      h ^= pieceHash(sq, p.type, p.color);
+    for (let index = 0; index < 128; index++) {
+      if (index & OFF_BOARD) {
+        index += 7;
+        continue;
+      }
+      const value = this.#board[index] ?? 0;
+      if (value === 0) {
+        continue;
+      }
+      const sq = indexToSquare(index);
+      const type = NUM_TO_PIECE_TYPE[value & TYPE_MASK] ?? 'pawn';
+      const color: Color = (value & COLOR_MASK) === 0 ? 'white' : 'black';
+      h ^= pieceHash(sq, type, color);
     }
 
-    h ^= turnHash(this.#turn);
+    h ^= turnHash(this.turn);
 
-    for (const [color, sides] of Object.entries(this.#castlingRights) as [
+    for (const [color, sides] of Object.entries(this.castlingRights) as [
       Color,
       { king: boolean; queen: boolean },
     ][]) {
@@ -135,8 +143,8 @@ export class Position {
       }
     }
 
-    if (this.#enPassantSquare !== undefined) {
-      const file = this.#enPassantSquare[0] as File;
+    if (this.enPassantSquare !== undefined) {
+      const file = this.enPassantSquare[0] as File;
       h ^= epHash(file);
     }
 
@@ -144,65 +152,76 @@ export class Position {
     return this.#hash;
   }
 
-  /**
-   * Whether the position is a draw by insufficient material (FIDE rules):
-   * K vs K, K+B vs K, K+N vs K, or K+B vs K+B with same-color bishops.
-   */
   get isInsufficientMaterial(): boolean {
-    const nonKingEntries: [Square, Piece][] = [];
-    for (const [sq, p] of this.#board) {
-      if (p.type !== 'king') {
-        nonKingEntries.push([sq, p]);
+    const nonKingPieces: { index: number; type: number }[] = [];
+
+    for (let index = 0; index < 128; index++) {
+      if (index & OFF_BOARD) {
+        index += 7;
+        continue;
+      }
+      const value = this.#board[index] ?? 0;
+      if (value === 0) {
+        continue;
+      }
+      const type = value & TYPE_MASK;
+      if (type !== KING) {
+        nonKingPieces.push({ index: index, type });
       }
     }
 
-    // K vs K
-    if (nonKingEntries.length === 0) {
+    if (nonKingPieces.length === 0) {
       return true;
     }
 
-    // K vs KB or K vs KN
-    if (nonKingEntries.length === 1) {
-      const sole = nonKingEntries[0]?.[1];
-      return sole?.type === 'bishop' || sole?.type === 'knight';
+    if (nonKingPieces.length === 1) {
+      const first = nonKingPieces[0];
+      if (first === undefined) return false;
+      return first.type === BISHOP || first.type === KNIGHT;
     }
 
-    // KB vs KB (any number) — all non-king pieces must be bishops on the same square color
-    const allBishops = nonKingEntries.every(([, p]) => p.type === 'bishop');
+    const allBishops = nonKingPieces.every((p) => p.type === BISHOP);
     if (allBishops) {
-      const first = nonKingEntries[0];
-      if (first === undefined) {
-        return true;
-      }
-      const firstSquareColor = squareColor(first[0]);
-      return nonKingEntries.every(
-        ([sq]) => squareColor(sq) === firstSquareColor,
+      const firstPiece = nonKingPieces[0];
+      if (firstPiece === undefined) return false;
+      const firstSq = indexToSquare(firstPiece.index);
+      const firstColor = squareColor(firstSq);
+      return nonKingPieces.every(
+        (p) => squareColor(indexToSquare(p.index)) === firstColor,
       );
     }
 
     return false;
   }
 
-  /**
-   * Whether the position is legally reachable: exactly one king per side,
-   * no pawns on ranks 1 or 8, and the side not to move is not in check.
-   */
   get isValid(): boolean {
     let blackKings = 0;
     let whiteKings = 0;
 
-    for (const [square, p] of this.#board) {
-      if (p.type === 'king') {
-        if (p.color === 'black') {
-          blackKings++;
-        } else {
+    for (let index = 0; index < 128; index++) {
+      if (index & OFF_BOARD) {
+        index += 7;
+        continue;
+      }
+      const value = this.#board[index] ?? 0;
+      if (value === 0) {
+        continue;
+      }
+      const type = value & TYPE_MASK;
+
+      if (type === KING) {
+        if ((value & COLOR_MASK) === 0) {
           whiteKings++;
+        } else {
+          blackKings++;
         }
       }
 
-      // No pawns on rank 1 or 8
-      if (p.type === 'pawn' && (square[1] === '1' || square[1] === '8')) {
-        return false;
+      if (type === PAWN) {
+        const rank = 8 - ((index >> 4) & 0x07);
+        if (rank === 1 || rank === 8) {
+          return false;
+        }
       }
     }
 
@@ -210,176 +229,139 @@ export class Position {
       return false;
     }
 
-    // Side not to move must not be in check
-    const opponent: Color = this.#turn === 'white' ? 'black' : 'white';
-    if (this.#computeIsAttacked(opponent)) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /** Whether the side to move is in check. */
-  get isCheck(): boolean {
-    if (this.#isCheckCache !== undefined) {
-      return this.#isCheckCache;
-    }
-    this.#isCheckCache = this.#computeIsAttacked(this.#turn);
-    return this.#isCheckCache;
-  }
-
-  /** Side to move — `'white'` or `'black'`. */
-  get turn(): Color {
-    return this.#turn;
-  }
-
-  #getBoard0x88(): (Piece | undefined)[] {
-    if (this.#board0x88 !== undefined) {
-      return this.#board0x88;
-    }
-    this.#board0x88 = boardFromMap(this.#board);
-    return this.#board0x88;
-  }
-
-  #computeIsAttacked(kingColor: Color): boolean {
-    // Find king
-    let kingSquare: Square | undefined;
-    for (const [sq, p] of this.#board) {
-      if (p.type === 'king' && p.color === kingColor) {
-        kingSquare = sq;
+    const opponentColor = this.turn === 'white' ? BLACK : WHITE;
+    const opponentKingBitmask = opponentColor | KING;
+    let opponentKingIndex = -1;
+    for (let index = 0; index < 128; index++) {
+      if (index & OFF_BOARD) {
+        index += 7;
+        continue;
+      }
+      if (this.#board[index] === opponentKingBitmask) {
+        opponentKingIndex = index;
         break;
       }
     }
 
-    if (kingSquare === undefined) {
+    if (opponentKingIndex === -1) {
       return false;
     }
 
-    const opponent: Color = kingColor === 'white' ? 'black' : 'white';
+    return !this.#isAttackedBy(
+      opponentKingIndex,
+      this.turn === 'white' ? WHITE : BLACK,
+    );
+  }
 
-    // Knight attacks
+  get isCheck(): boolean {
+    if (this.#isCheck !== undefined) {
+      return this.#isCheck;
+    }
+
+    const myColor = this.turn === 'white' ? WHITE : BLACK;
+    const myKingBitmask = myColor | KING;
+    let kingIndex = -1;
+    for (let index = 0; index < 128; index++) {
+      if (index & OFF_BOARD) {
+        index += 7;
+        continue;
+      }
+      if (this.#board[index] === myKingBitmask) {
+        kingIndex = index;
+        break;
+      }
+    }
+
+    this.#isCheck =
+      kingIndex !== -1 &&
+      this.#isAttackedBy(kingIndex, myColor === WHITE ? BLACK : WHITE);
+    return this.#isCheck;
+  }
+
+  #isAttackedBy(targetIndex: number, byColor: number): boolean {
+    const enemyKnight = byColor | KNIGHT;
     for (const move of KNIGHT_MOVES) {
-      const [target] = this.reach(kingSquare, move);
-      if (target !== undefined) {
-        const piece = this.#board.get(target);
-        if (piece?.color === opponent && piece.type === 'knight') {
-          return true;
-        }
+      const index = targetIndex + move.offset;
+      if (!(index & OFF_BOARD) && this.#board[index] === enemyKnight) {
+        return true;
       }
     }
 
-    // Rook/Queen attacks (rank and file)
+    const enemyRook = byColor | ROOK;
+    const enemyQueen = byColor | QUEEN;
     for (const move of ROOK_MOVES) {
-      const squares = this.reach(kingSquare, move);
-      for (const sq of squares) {
-        const piece = this.#board.get(sq);
-        if (piece !== undefined) {
-          if (
-            piece.color === opponent &&
-            (piece.type === 'rook' || piece.type === 'queen')
-          ) {
+      let index = targetIndex + move.offset;
+      while (!(index & OFF_BOARD)) {
+        const value = this.#board[index] ?? 0;
+        if (value !== 0) {
+          if (value === enemyRook || value === enemyQueen) {
             return true;
           }
           break;
         }
+        index += move.offset;
       }
     }
 
-    // Bishop/Queen attacks (diagonals)
+    const enemyBishop = byColor | BISHOP;
     for (const move of BISHOP_MOVES) {
-      const squares = this.reach(kingSquare, move);
-      for (const sq of squares) {
-        const piece = this.#board.get(sq);
-        if (piece !== undefined) {
-          if (
-            piece.color === opponent &&
-            (piece.type === 'bishop' || piece.type === 'queen')
-          ) {
+      let index = targetIndex + move.offset;
+      while (!(index & OFF_BOARD)) {
+        const value = this.#board[index] ?? 0;
+        if (value !== 0) {
+          if (value === enemyBishop || value === enemyQueen) {
             return true;
           }
           break;
         }
+        index += move.offset;
       }
     }
 
-    // King attacks (adjacent)
+    const enemyKing = byColor | KING;
     for (const move of KING_MOVES) {
-      const [target] = this.reach(kingSquare, move);
-      if (target !== undefined) {
-        const piece = this.#board.get(target);
-        if (piece?.color === opponent && piece.type === 'king') {
-          return true;
-        }
+      const index = targetIndex + move.offset;
+      if (!(index & OFF_BOARD) && this.#board[index] === enemyKing) {
+        return true;
       }
     }
 
-    // Pawn attacks — from king's perspective, look for enemy pawns
-    // If king is white, look in the directions black pawns would capture FROM
-    // Black pawns capture with offsets +15, +17 — so from white king, look at +15, +17
     const pawnMoves =
-      kingColor === 'white'
-        ? PAWN_MOVES.black.captures
-        : PAWN_MOVES.white.captures;
+      byColor === BLACK ? PAWN_MOVES.black.captures : PAWN_MOVES.white.captures;
+    const enemyPawn = byColor | PAWN;
     for (const move of pawnMoves) {
-      const [target] = this.reach(kingSquare, move);
-      if (target !== undefined) {
-        const piece = this.#board.get(target);
-        if (piece?.color === opponent && piece.type === 'pawn') {
-          return true;
-        }
+      const index = targetIndex + move.offset;
+      if (!(index & OFF_BOARD) && this.#board[index] === enemyPawn) {
+        return true;
       }
     }
 
     return false;
   }
 
-  /**
-   * Returns a new position with the given changes applied. Fields not
-   * provided are carried over from the source. Calling with no argument
-   * returns a clone.
-   *
-   * @param changes - Board deltas and option overrides to apply.
-   */
   derive(changes?: DeriveOptions): Position {
-    const board = new Map(this.#board);
+    const board = [...this.#board];
 
     if (changes?.changes) {
-      for (const [square, piece] of changes.changes) {
-        if (piece === undefined) {
-          board.delete(square);
-        } else {
-          board.set(square, piece);
-        }
+      for (const [square, p] of changes.changes) {
+        const index = squareToIndex(square);
+        board[index] = p === undefined ? 0 : pieceToBitmask(p);
       }
     }
 
-    return new Position(board, {
-      castlingRights: changes?.castlingRights ?? this.#castlingRights,
+    return Position.#from(board, {
+      castlingRights: changes?.castlingRights ?? this.castlingRights,
       enPassantSquare:
         'enPassantSquare' in (changes ?? {})
           ? changes?.enPassantSquare
-          : this.#enPassantSquare,
-      fullmoveNumber: changes?.fullmoveNumber ?? this.#fullmoveNumber,
-      halfmoveClock: changes?.halfmoveClock ?? this.#halfmoveClock,
-      turn: changes?.turn ?? this.#turn,
+          : this.enPassantSquare,
+      fullmoveNumber: changes?.fullmoveNumber ?? this.fullmoveNumber,
+      halfmoveClock: changes?.halfmoveClock ?? this.halfmoveClock,
+      turn: changes?.turn ?? this.turn,
     });
   }
 
-  /**
-   * From `square`, apply the move descriptor and return the squares reached.
-   *
-   * For single-hop moves, returns the target square if it is on the board
-   * (regardless of occupancy), or an empty array if off-board.
-   *
-   * For sliding moves, walks step by step collecting every square until
-   * hitting off-board or an occupied square. The first occupied square is
-   * included (it could be a capture target).
-   *
-   * @param square - The source square.
-   * @param move - A {@link PieceMove} descriptor with offset and optional slide flag.
-   */
   reach(square: Square, move: PieceMove): Square[] {
-    const board = this.#getBoard0x88();
     const fromIndex = squareToIndex(square);
     let index = fromIndex + move.offset;
 
@@ -396,7 +378,7 @@ export class Position {
     while ((index & OFF_BOARD) === 0) {
       result.push(indexToSquare(index));
 
-      if (board[index] !== undefined) {
+      if (this.#board[index] !== 0) {
         break;
       }
 
@@ -406,30 +388,33 @@ export class Position {
     return result;
   }
 
-  /**
-   * Returns the piece on the given square, or `undefined` if empty.
-   *
-   * @param square - The square to query.
-   */
   piece(square: Square): Piece | undefined {
-    return this.#board.get(square);
+    return bitmaskToPiece(this.#board[squareToIndex(square)] ?? 0);
   }
 
-  /**
-   * Returns a map of all pieces on the board, optionally filtered by color.
-   *
-   * @param color - If provided, only pieces of this color are returned.
-   */
   pieces(color?: Color): Map<Square, Piece> {
-    if (color === undefined) {
-      return new Map(this.#board);
-    }
     const result = new Map<Square, Piece>();
-    for (const [sq, p] of this.#board) {
-      if (p.color === color) {
-        result.set(sq, p);
+    const colorFilter =
+      color === undefined ? undefined : color === 'black' ? BLACK : WHITE;
+
+    for (let index = 0; index < 128; index++) {
+      if (index & OFF_BOARD) {
+        index += 7;
+        continue;
+      }
+      const value = this.#board[index] ?? 0;
+      if (value === 0) {
+        continue;
+      }
+      if (colorFilter !== undefined && (value & COLOR_MASK) !== colorFilter) {
+        continue;
+      }
+      const p = bitmaskToPiece(value);
+      if (p !== undefined) {
+        result.set(indexToSquare(index), p);
       }
     }
+
     return result;
   }
 }
