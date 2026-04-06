@@ -6,8 +6,6 @@ import {
   KNIGHT,
   OFF_BOARD,
   PAWN,
-  QUEEN,
-  ROOK,
   TYPE_MASK,
   WHITE,
   bitmaskToPiece,
@@ -220,27 +218,29 @@ export class Position {
       return false;
     }
 
-    const opponentColor = this.turn === 'white' ? BLACK : WHITE;
-    const opponentKingBitmask = opponentColor | KING;
-    let opponentKingIndex = -1;
+    const opponentColor: Color = this.turn === 'white' ? 'black' : 'white';
+    const opponentKingBitmask =
+      (opponentColor === 'white' ? WHITE : BLACK) | KING;
+    let opponentKingSquare: Square | undefined;
     for (let index = 0; index < 128; index++) {
       if (index & OFF_BOARD) {
         index += 7;
         continue;
       }
       if (this.#board[index] === opponentKingBitmask) {
-        opponentKingIndex = index;
+        opponentKingSquare = indexToSquare(index);
         break;
       }
     }
 
-    if (opponentKingIndex === -1) {
+    if (opponentKingSquare === undefined) {
       return false;
     }
 
-    return !this.#isAttackedBy(
-      opponentKingIndex,
-      this.turn === 'white' ? WHITE : BLACK,
+    return !this.#isSquareAttackedBy(
+      opponentKingSquare,
+      opponentColor,
+      this.turn,
     );
   }
 
@@ -249,84 +249,61 @@ export class Position {
       return this.#isCheck;
     }
 
-    const myColor = this.turn === 'white' ? WHITE : BLACK;
-    const myKingBitmask = myColor | KING;
-    let kingIndex = -1;
+    const kingColor = this.turn;
+    const opponent: Color = kingColor === 'white' ? 'black' : 'white';
+
+    let kingSquare: Square | undefined;
+    const kingBitmask = (kingColor === 'white' ? WHITE : BLACK) | KING;
     for (let index = 0; index < 128; index++) {
       if (index & OFF_BOARD) {
         index += 7;
         continue;
       }
-      if (this.#board[index] === myKingBitmask) {
-        kingIndex = index;
+      if (this.#board[index] === kingBitmask) {
+        kingSquare = indexToSquare(index);
         break;
       }
     }
 
-    this.#isCheck =
-      kingIndex !== -1 &&
-      this.#isAttackedBy(kingIndex, myColor === WHITE ? BLACK : WHITE);
+    if (kingSquare === undefined) {
+      this.#isCheck = false;
+      return false;
+    }
+
+    this.#isCheck = this.#isSquareAttackedBy(kingSquare, kingColor, opponent);
     return this.#isCheck;
   }
 
-  #isAttackedBy(targetIndex: number, byColor: number): boolean {
-    const enemyKnight = byColor | KNIGHT;
-    for (const move of KNIGHT_MOVES) {
-      const index = targetIndex + move.offset;
-      if (!(index & OFF_BOARD) && this.#board[index] === enemyKnight) {
-        return true;
-      }
-    }
-
-    const enemyRook = byColor | ROOK;
-    const enemyQueen = byColor | QUEEN;
-    for (const move of ROOK_MOVES) {
-      let index = targetIndex + move.offset;
-      while (!(index & OFF_BOARD)) {
-        const value = this.#board[index] ?? 0;
-        if (value !== 0) {
-          if (value === enemyRook || value === enemyQueen) {
-            return true;
-          }
-          break;
+  #isSquareAttackedBy(
+    square: Square,
+    friendlyColor: Color,
+    enemyColor: Color,
+  ): boolean {
+    for (const type of [
+      'knight',
+      'bishop',
+      'rook',
+      'queen',
+      'king',
+      'pawn',
+    ] as PieceType[]) {
+      const squares = this.reach(square, { color: friendlyColor, type });
+      for (const sq of squares) {
+        const p = this.piece(sq);
+        if (p === undefined || p.color !== enemyColor) {
+          continue;
         }
-        index += move.offset;
-      }
-    }
-
-    const enemyBishop = byColor | BISHOP;
-    for (const move of BISHOP_MOVES) {
-      let index = targetIndex + move.offset;
-      while (!(index & OFF_BOARD)) {
-        const value = this.#board[index] ?? 0;
-        if (value !== 0) {
-          if (value === enemyBishop || value === enemyQueen) {
-            return true;
-          }
-          break;
+        if (type === 'rook' && (p.type === 'rook' || p.type === 'queen')) {
+          return true;
         }
-        index += move.offset;
+        if (type === 'bishop' && (p.type === 'bishop' || p.type === 'queen')) {
+          return true;
+        }
+        if (p.type === type) {
+          return true;
+        }
       }
     }
-
-    const enemyKing = byColor | KING;
-    for (const move of KING_MOVES) {
-      const index = targetIndex + move.offset;
-      if (!(index & OFF_BOARD) && this.#board[index] === enemyKing) {
-        return true;
-      }
-    }
-
-    const pawnMoves =
-      byColor === BLACK ? PAWN_MOVES.black.captures : PAWN_MOVES.white.captures;
-    const enemyPawn = byColor | PAWN;
-    for (const move of pawnMoves) {
-      const index = targetIndex + move.offset;
-      if (!(index & OFF_BOARD) && this.#board[index] === enemyPawn) {
-        return true;
-      }
-    }
-
     return false;
   }
 
