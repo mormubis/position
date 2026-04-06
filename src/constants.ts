@@ -4,5 +4,3 @@ import { startingBoard } from './starting-board.js';
 const STARTING_POSITION = startingBoard;
 
 export { STARTING_POSITION };
-
-export { COLORS, FILES, PIECE_TYPES, RANKS, SQUARES } from './primitives.js';

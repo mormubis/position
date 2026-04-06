@@ -1,6 +1,19 @@
-import { COLORS, FILES, PIECE_TYPES, SQUARES } from './primitives.js';
-
 import type { Color, File, PieceType, Square } from './types.js';
+
+const COLORS: Color[] = ['black', 'white'];
+const FILES: File[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+const PIECE_TYPES: PieceType[] = [
+  'bishop',
+  'king',
+  'knight',
+  'pawn',
+  'queen',
+  'rook',
+];
+const RANKS = ['1', '2', '3', '4', '5', '6', '7', '8'] as const;
+const SQUARES: Square[] = FILES.flatMap((f) =>
+  RANKS.toReversed().map((r) => `${f}${r}` as Square),
+);
 
 // Seeded LCG for deterministic random numbers (no Math.random — must be stable across runs)
 function lcg(seed: number): () => bigint {
