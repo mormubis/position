@@ -1,18 +1,13 @@
-import {
-  ATTACKS,
-  CASTLING_TABLE,
-  DIFF_OFFSET,
-  EP_TABLE,
-  OFF_BOARD,
-  PIECE_MASKS,
-  PIECE_TABLE,
-  RAYS,
-  TURN_TABLE,
-  boardFromMap,
-  squareToIndex,
-} from './internal/index.js';
+import { OFF_BOARD, boardFromMap, squareToIndex } from './board.js';
 import { squareColor } from './squares.js';
 import { startingBoard } from './starting-board.js';
+import { ATTACKS, DIFF_OFFSET, PIECE_MASKS, RAYS } from './tables.js';
+import {
+  CASTLING_TABLE,
+  EP_TABLE,
+  PIECE_TABLE,
+  TURN_TABLE,
+} from './zobrist.js';
 
 import type {
   CastlingRights,

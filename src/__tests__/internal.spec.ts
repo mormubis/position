@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { squareToIndex } from '../internal/index.js';
+import { squareToIndex } from '../board.js';
 
 describe('squareToIndex', () => {
   it('e4 → 68', () => {

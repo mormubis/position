@@ -1,6 +1,6 @@
 import { OFF_BOARD } from './board.js';
 
-import type { PieceType } from '../types.js';
+import type { PieceType } from './types.js';
 
 // ── Direction constants ───────────────────────────────────────────────────────
 

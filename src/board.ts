@@ -1,4 +1,4 @@
-import type { Piece, Square } from '../types.js';
+import type { Piece, Square } from './types.js';
 
 const OFF_BOARD = 0x88;
 

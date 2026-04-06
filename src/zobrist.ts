@@ -1,6 +1,6 @@
-import { COLORS, FILES, PIECE_TYPES, SQUARES } from '../primitives.js';
+import { COLORS, FILES, PIECE_TYPES, SQUARES } from './primitives.js';
 
-import type { Color, File, PieceType, Square } from '../types.js';
+import type { Color, File, PieceType, Square } from './types.js';
 
 // Seeded LCG for deterministic random numbers (no Math.random — must be stable across runs)
 function lcg(seed: number): () => bigint {
