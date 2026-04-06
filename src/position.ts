@@ -8,7 +8,6 @@ import {
 } from './moves.js';
 import { squareColor } from './squares.js';
 import { startingBoard } from './starting-board.js';
-import { ATTACKS, DIFF_OFFSET, PIECE_MASKS, RAYS } from './tables.js';
 import {
   CASTLING_TABLE,
   EP_TABLE,
@@ -340,59 +339,6 @@ export class Position {
     return false;
   }
 
-  #isAttackedByPiece(
-    board: (Piece | undefined)[],
-    targetIndex: number,
-    fromIndex: number,
-    p: Piece,
-    by: Color,
-  ): boolean {
-    const diff = targetIndex - fromIndex;
-    const tableIndex = diff + DIFF_OFFSET;
-
-    if (tableIndex < 0 || tableIndex >= 240) {
-      return false;
-    }
-
-    const attackMask = ATTACKS[tableIndex] ?? 0;
-    const pieceMask = PIECE_MASKS[p.type] ?? 0;
-
-    if ((attackMask & pieceMask) === 0) {
-      return false;
-    }
-
-    if (p.type === 'pawn') {
-      if (by === 'white' && diff > 0) {
-        return false;
-      }
-
-      if (by === 'black' && diff < 0) {
-        return false;
-      }
-    }
-
-    const ray = RAYS[tableIndex] ?? 0;
-
-    if (ray === 0) {
-      return true;
-    }
-
-    let index = fromIndex + ray;
-    while (index !== targetIndex) {
-      if ((index & OFF_BOARD) !== 0) {
-        return false;
-      }
-
-      if (board[index] !== undefined) {
-        return false;
-      }
-
-      index += ray;
-    }
-
-    return true;
-  }
-
   /**
    * Returns a new position with the given changes applied. Fields not
    * provided are carried over from the source. Calling with no argument
@@ -464,56 +410,6 @@ export class Position {
     }
 
     return result;
-  }
-
-  /**
-   * Returns all squares occupied by pieces of the given color that
-   * attack the target square.
-   *
-   * @param square - The target square.
-   * @param by - The attacking color.
-   */
-  attackers(square: Square, by: Color): Square[] {
-    const board = boardFromMap(this.#board);
-    const targetIndex = squareToIndex(square);
-    const result: Square[] = [];
-
-    for (const [sq, p] of this.#board) {
-      if (p.color !== by) {
-        continue;
-      }
-
-      const fromIndex = squareToIndex(sq);
-      if (this.#isAttackedByPiece(board, targetIndex, fromIndex, p, by)) {
-        result.push(sq);
-      }
-    }
-
-    return result;
-  }
-
-  /**
-   * Returns `true` if any piece of the given color attacks the target square.
-   *
-   * @param square - The target square.
-   * @param by - The attacking color.
-   */
-  isAttacked(square: Square, by: Color): boolean {
-    const board = boardFromMap(this.#board);
-    const targetIndex = squareToIndex(square);
-
-    for (const [sq, p] of this.#board) {
-      if (p.color !== by) {
-        continue;
-      }
-
-      const fromIndex = squareToIndex(sq);
-      if (this.#isAttackedByPiece(board, targetIndex, fromIndex, p, by)) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
   /**
