@@ -64,4 +64,13 @@ const PAWN_MOVES: {
   },
 };
 
-export { BISHOP_MOVES, KING_MOVES, KNIGHT_MOVES, PAWN_MOVES, ROOK_MOVES };
+const QUEEN_MOVES: readonly PieceMove[] = [...BISHOP_MOVES, ...ROOK_MOVES];
+
+export {
+  BISHOP_MOVES,
+  KING_MOVES,
+  KNIGHT_MOVES,
+  PAWN_MOVES,
+  QUEEN_MOVES,
+  ROOK_MOVES,
+};

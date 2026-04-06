@@ -21,6 +21,7 @@ export {
   KING_MOVES,
   KNIGHT_MOVES,
   PAWN_MOVES,
+  QUEEN_MOVES,
   ROOK_MOVES,
 } from './moves.js';
 
