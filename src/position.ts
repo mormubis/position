@@ -33,7 +33,6 @@ import type {
   File,
   Piece,
   PieceMove,
-  PieceType,
   PositionOptions,
   Square,
 } from './types.js';
@@ -49,16 +48,6 @@ const DEFAULT_OPTIONS: Required<Omit<PositionOptions, 'enPassantSquare'>> &
   halfmoveClock: 0,
   turn: 'white',
 };
-
-const NUM_TO_PIECE_TYPE: PieceType[] = [
-  'pawn',
-  'pawn',
-  'knight',
-  'bishop',
-  'rook',
-  'queen',
-  'king',
-];
 
 export class Position {
   readonly castlingRights: CastlingRights;
@@ -121,10 +110,10 @@ export class Position {
       if (value === 0) {
         continue;
       }
-      const sq = indexToSquare(index);
-      const type = NUM_TO_PIECE_TYPE[value & TYPE_MASK] ?? 'pawn';
-      const color: Color = (value & COLOR_MASK) === 0 ? 'white' : 'black';
-      h ^= pieceHash(sq, type, color);
+      const p = bitmaskToPiece(value);
+      if (p !== undefined) {
+        h ^= pieceHash(indexToSquare(index), p.type, p.color);
+      }
     }
 
     h ^= turnHash(this.turn);
