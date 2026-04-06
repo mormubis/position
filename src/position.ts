@@ -20,6 +20,7 @@ import {
   KING_MOVES,
   KNIGHT_MOVES,
   PAWN_MOVES,
+  QUEEN_MOVES,
   ROOK_MOVES,
 } from './moves.js';
 import { squareColor } from './squares.js';
@@ -33,6 +34,7 @@ import type {
   File,
   Piece,
   PieceMove,
+  PieceType,
   PositionOptions,
   Square,
 } from './types.js';
@@ -328,6 +330,31 @@ export class Position {
     return false;
   }
 
+  #movesForType(type: PieceType, color: Color): readonly PieceMove[] {
+    switch (type) {
+      case 'bishop': {
+        return BISHOP_MOVES;
+      }
+      case 'king': {
+        return KING_MOVES;
+      }
+      case 'knight': {
+        return KNIGHT_MOVES;
+      }
+      case 'pawn': {
+        return color === 'white'
+          ? PAWN_MOVES.white.captures
+          : PAWN_MOVES.black.captures;
+      }
+      case 'queen': {
+        return QUEEN_MOVES;
+      }
+      case 'rook': {
+        return ROOK_MOVES;
+      }
+    }
+  }
+
   derive(changes?: DeriveOptions): Position {
     const board = [...this.#board];
 
@@ -350,28 +377,35 @@ export class Position {
     });
   }
 
-  reach(square: Square, move: PieceMove): Square[] {
+  reach(square: Square, piece: Piece): Square[] {
     const fromIndex = squareToIndex(square);
-    let index = fromIndex + move.offset;
-
-    if ((index & OFF_BOARD) !== 0) {
-      return [];
-    }
-
-    if (!move.slide) {
-      return [indexToSquare(index)];
-    }
-
+    const friendlyColor = piece.color === 'black' ? BLACK : WHITE;
+    const moves = this.#movesForType(piece.type, piece.color);
     const result: Square[] = [];
 
-    while ((index & OFF_BOARD) === 0) {
-      result.push(indexToSquare(index));
+    for (const move of moves) {
+      let index = fromIndex + move.offset;
 
-      if (this.#board[index] !== 0) {
-        break;
+      if (move.slide) {
+        while (!(index & OFF_BOARD)) {
+          const value = this.#board[index] ?? 0;
+          if (value !== 0) {
+            if ((value & COLOR_MASK) !== friendlyColor) {
+              result.push(indexToSquare(index));
+            }
+            break;
+          }
+          result.push(indexToSquare(index));
+          index += move.offset;
+        }
+      } else {
+        if (!(index & OFF_BOARD)) {
+          const value = this.#board[index] ?? 0;
+          if (value === 0 || (value & COLOR_MASK) !== friendlyColor) {
+            result.push(indexToSquare(index));
+          }
+        }
       }
-
-      index += move.offset;
     }
 
     return result;
