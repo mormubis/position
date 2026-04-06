@@ -1,29 +1,38 @@
 import type { Piece, Square } from './types.js';
 
-const BACK_RANK_TYPES = [
-  'rook',
-  'knight',
-  'bishop',
-  'queen',
-  'king',
-  'bishop',
-  'knight',
-  'rook',
-] as const;
-const BACK_RANK_FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const;
-
-const board = new Map<Square, Piece>();
-for (const [index, type] of BACK_RANK_TYPES.entries()) {
-  const file = BACK_RANK_FILES[index];
-  if (file === undefined) {
-    continue;
-  }
-  board.set(`${file}1` as Square, { color: 'white', type });
-  board.set(`${file}2` as Square, { color: 'white', type: 'pawn' });
-  board.set(`${file}7` as Square, { color: 'black', type: 'pawn' });
-  board.set(`${file}8` as Square, { color: 'black', type });
-}
-
-const STARTING_POSITION: ReadonlyMap<Square, Piece> = board;
+const STARTING_POSITION: ReadonlyMap<Square, Piece> = new Map([
+  ['a1', { color: 'white', type: 'rook' }],
+  ['a2', { color: 'white', type: 'pawn' }],
+  ['a7', { color: 'black', type: 'pawn' }],
+  ['a8', { color: 'black', type: 'rook' }],
+  ['b1', { color: 'white', type: 'knight' }],
+  ['b2', { color: 'white', type: 'pawn' }],
+  ['b7', { color: 'black', type: 'pawn' }],
+  ['b8', { color: 'black', type: 'knight' }],
+  ['c1', { color: 'white', type: 'bishop' }],
+  ['c2', { color: 'white', type: 'pawn' }],
+  ['c7', { color: 'black', type: 'pawn' }],
+  ['c8', { color: 'black', type: 'bishop' }],
+  ['d1', { color: 'white', type: 'queen' }],
+  ['d2', { color: 'white', type: 'pawn' }],
+  ['d7', { color: 'black', type: 'pawn' }],
+  ['d8', { color: 'black', type: 'queen' }],
+  ['e1', { color: 'white', type: 'king' }],
+  ['e2', { color: 'white', type: 'pawn' }],
+  ['e7', { color: 'black', type: 'pawn' }],
+  ['e8', { color: 'black', type: 'king' }],
+  ['f1', { color: 'white', type: 'bishop' }],
+  ['f2', { color: 'white', type: 'pawn' }],
+  ['f7', { color: 'black', type: 'pawn' }],
+  ['f8', { color: 'black', type: 'bishop' }],
+  ['g1', { color: 'white', type: 'knight' }],
+  ['g2', { color: 'white', type: 'pawn' }],
+  ['g7', { color: 'black', type: 'pawn' }],
+  ['g8', { color: 'black', type: 'knight' }],
+  ['h1', { color: 'white', type: 'rook' }],
+  ['h2', { color: 'white', type: 'pawn' }],
+  ['h7', { color: 'black', type: 'pawn' }],
+  ['h8', { color: 'black', type: 'rook' }],
+]);
 
 export { STARTING_POSITION };
