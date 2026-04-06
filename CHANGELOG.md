@@ -1,5 +1,32 @@
 # Changelog
 
+## [3.0.0] - 2026-04-06
+
+### Added
+
+- `Position.prototype.reach(square, move)` method — from a square, follow a move
+  descriptor and return the reachable squares on the current board.
+- `PieceMove` type — describes a piece movement direction with offset and
+  optional slide flag.
+- `KNIGHT_MOVES`, `BISHOP_MOVES`, `ROOK_MOVES`, `KING_MOVES`, `PAWN_MOVES`
+  constants — piece movement descriptors for the 0x88 board.
+- Lazy 0x88 board cache inside `Position` — built on first `reach` or `isCheck`
+  call, reused after.
+- Lazy `isCheck` cache — computed once per position.
+
+### Changed
+
+- `isCheck` reimplemented using reverse-lookup approach (from king, look outward
+  for attackers) instead of iterating all enemy pieces.
+- `isValid` reimplemented using the same reverse-lookup attack detection.
+- Flattened internal module structure — removed `internal/` directory.
+
+### Removed
+
+- `Position.prototype.attackers()` method — attack detection moves to
+  `@echecs/game` using `reach` and move constants.
+- `Position.prototype.isAttacked()` method — same.
+
 ## [2.0.1] - 2026-04-05
 
 ### Fixed

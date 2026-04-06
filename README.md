@@ -34,9 +34,10 @@ console.log(pos.isCheck); // false
 const piece = pos.piece('e1'); // { color: 'white', type: 'king' }
 const whites = pos.pieces('white'); // Map<Square, Piece> of all white pieces
 
-// Attack queries
-const attackers = pos.attackers('e5', 'black'); // squares of black pieces attacking e5
-const attacked = pos.isAttacked('f7', 'white'); // true if white attacks f7
+// Board queries
+import { KNIGHT_MOVES } from '@echecs/position';
+
+const reachable = pos.reach('e4', KNIGHT_MOVES[0]!); // squares the knight can reach
 
 // Derive a new position
 const next = pos.derive({
@@ -80,14 +81,6 @@ The no-argument form creates the standard chess starting position. Pass a custom
 
 ### Methods
 
-#### `attackers(square, color): Square[]`
-
-Returns all squares occupied by pieces of `color` that attack `square`.
-
-```typescript
-pos.attackers('e5', 'black'); // e.g. ['d7', 'f6']
-```
-
 #### `derive(changes?): Position`
 
 Returns a new `Position` with the given changes applied. The original is not
@@ -108,12 +101,18 @@ const next = pos.derive({
 const clone = pos.derive();
 ```
 
-#### `isAttacked(square, color): boolean`
+#### `reach(square, move): Square[]`
 
-Returns `true` if any piece of `color` attacks `square`.
+From `square`, apply the move descriptor and return the squares reached. For
+single-hop moves, returns the target square if it is on the board. For sliding
+moves, walks step by step until hitting the board edge or an occupied square
+(included as a potential capture target).
 
 ```typescript
-pos.isAttacked('f3', 'white'); // true if white attacks f3
+import { ROOK_MOVES, KNIGHT_MOVES } from '@echecs/position';
+
+pos.reach('e4', KNIGHT_MOVES[0]!); // ['d6']
+pos.reach('e1', ROOK_MOVES[0]!); // ['e2', 'e3', ...] until blocked
 ```
 
 #### `piece(square): Piece | undefined`
@@ -143,6 +142,25 @@ import { STARTING_POSITION } from '@echecs/position';
 `STARTING_POSITION` is a `Position` instance for the standard chess starting
 position. Equivalent to `new Position()`.
 
+### Move Constants
+
+Describe how each piece type moves on the board. Used with `reach` for move
+generation and attack detection.
+
+```typescript
+import {
+  BISHOP_MOVES, // 4 diagonal directions (sliding)
+  KING_MOVES, // 8 adjacent squares
+  KNIGHT_MOVES, // 8 L-shaped hops
+  PAWN_MOVES, // { white: { push, captures }, black: { push, captures } }
+  ROOK_MOVES, // 4 rank/file directions (sliding)
+} from '@echecs/position';
+```
+
+Each move has an `offset` (0x88 board offset) and an optional `slide` flag.
+Queen moves are not exported — compose them as
+`[...BISHOP_MOVES, ...ROOK_MOVES]`.
+
 ### Types
 
 All types are exported for use in consuming code and companion packages.
@@ -155,6 +173,7 @@ import type {
   EnPassantSquare, // en passant target square (rank 3 or 6 only)
   File, // 'a' | 'b' | ... | 'h'
   Piece, // { color: Color; type: PieceType }
+  PieceMove, // { offset: number; slide?: boolean }
   PieceType, // 'bishop' | 'king' | 'knight' | 'pawn' | 'queen' | 'rook'
   PositionOptions, // options accepted by the Position constructor
   Rank, // '1' | '2' | ... | '8'
