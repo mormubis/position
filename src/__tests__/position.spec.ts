@@ -115,6 +115,18 @@ describe('isInsufficientMaterial', () => {
     expect(new Position(board).isInsufficientMaterial).toBe(true);
   });
 
+  // Ported from chess.js
+  it('returns false for K vs KP', () => {
+    const board = new Map<Square, Piece>([
+      ['e1', { color: 'white', type: 'king' }],
+      ['e2', { color: 'black', type: 'pawn' }],
+      ['e3', { color: 'black', type: 'king' }],
+    ]);
+    expect(new Position(board, { turn: 'black' }).isInsufficientMaterial).toBe(
+      false,
+    );
+  });
+
   it('returns false for K vs KR', () => {
     const board = new Map<Square, Piece>([
       ['e1', { color: 'white', type: 'king' }],
