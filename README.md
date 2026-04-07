@@ -108,14 +108,15 @@ const clone = pos.derive();
 #### `reach(square, piece): Square[]`
 
 From `square`, return all squares the given `piece` can reach on the current
-board. Filters out squares occupied by same-color pieces. For sliding pieces,
-stops before friendlies and includes enemy pieces (capture targets). For pawns,
-returns capture diagonals only (pushes are game logic).
+board. Filters out same-color pieces. For sliding pieces, stops before
+friendlies and includes enemy pieces (capture targets). For pawns, includes
+pushes (single and double from starting rank, blocked by any piece), captures
+(enemy pieces only), and en passant.
 
 ```typescript
 pos.reach('g1', { color: 'white', type: 'knight' }); // ['f3', 'h3']
 pos.reach('e4', { color: 'white', type: 'rook' }); // all rank/file squares until blocked
-pos.reach('e4', { color: 'white', type: 'pawn' }); // ['d5', 'f5'] (capture diagonals)
+pos.reach('e2', { color: 'white', type: 'pawn' }); // ['e3', 'e4'] (pushes on empty board)
 ```
 
 #### `at(square): Piece | undefined`

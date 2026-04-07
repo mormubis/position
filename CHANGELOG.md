@@ -5,8 +5,12 @@
 ### Added
 
 - `Position.prototype.reach(square, piece)` method — from a square, return all
-  squares the given piece can reach, filtering same-color pieces.
+  squares the given piece can reach on the current board. Filters same-color
+  pieces. Includes pawn pushes (single and double), captures, and en passant.
+- `Position.prototype.at(square)` method — returns the piece on a square, or
+  `undefined` if empty. Replaces `piece()`.
 - Lazy `isCheck` cache — computed once per position.
+- `@echecs/zobrist` dependency — Polyglot standard Zobrist hash keys.
 
 ### Changed
 
@@ -16,17 +20,22 @@
   `turn` are now public readonly fields instead of getters.
 - `new Position()` now creates an empty board. Pass `STARTING_POSITION` for the
   standard chess starting position: `new Position(STARTING_POSITION)`.
-- `STARTING_POSITION` is now a `Map<Square, Piece>` (the starting board map)
-  instead of a `Position` instance.
+- `STARTING_POSITION` is now a `ReadonlyMap<Square, Piece>` (the starting board
+  map) instead of a `Position` instance.
+- Constructor accepts `ReadonlyMap<Square, Piece>` instead of
+  `Map<Square, Piece>`.
 - `isCheck` reimplemented using reverse-lookup approach (from king, look outward
-  for attackers) instead of iterating all enemy pieces.
-- `isValid` reimplemented using the same reverse-lookup attack detection.
+  for attackers) with the color trick — reuses `reach` internally.
+- `isValid` reimplemented using the same approach.
+- Zobrist hash now uses Polyglot standard keys for interoperability with opening
+  books and other engines.
 - Flattened internal module structure — removed `internal/` directory.
 
 ### Removed
 
 - `Position.prototype.attackers()` method.
 - `Position.prototype.isAttacked()` method.
+- `Position.prototype.piece()` method — replaced by `at()`.
 
 ## [2.0.1] - 2026-04-05
 
