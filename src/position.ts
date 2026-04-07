@@ -27,7 +27,6 @@ import {
   QUEEN_MOVES,
   ROOK_MOVES,
 } from './moves.js';
-import { squareColor } from './squares.js';
 
 import type {
   CastlingRights,
@@ -187,10 +186,11 @@ export class Position {
     if (allBishops) {
       const firstPiece = nonKingPieces[0];
       if (firstPiece === undefined) return false;
-      const firstSq = indexToSquare(firstPiece.index);
-      const firstColor = squareColor(firstSq);
+      const firstParity =
+        ((firstPiece.index & 0x07) + ((firstPiece.index >> 4) & 0x07)) & 1;
       return nonKingPieces.every(
-        (p) => squareColor(indexToSquare(p.index)) === firstColor,
+        (p) =>
+          (((p.index & 0x07) + ((p.index >> 4) & 0x07)) & 1) === firstParity,
       );
     }
 
