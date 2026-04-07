@@ -1,5 +1,7 @@
 import type { PieceMove } from './types.js';
 
+// Pawn moves are hardcoded in Position.reach (src/position.ts:345)
+
 /** Knight move offsets on the 0x88 board — 8 L-shaped hops. */
 const KNIGHT_MOVES: readonly PieceMove[] = [
   { offset: -33 },
