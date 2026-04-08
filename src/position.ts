@@ -92,12 +92,18 @@ export class Position {
    * @param options - Turn, castling rights, en passant, and move counters.
    */
   constructor(board?: ReadonlyMap<Square, Piece>, options?: PositionOptions) {
-    // eslint-disable-next-line unicorn/no-new-array -- Array.from is ~24x slower; this is a hot path
-    this.#board = new Array<number>(128).fill(0);
+    // Internal fast path: #from() passes the raw 0x88 array directly,
+    // skipping the 128-element allocation that would be immediately overwritten.
+    if (Array.isArray(board)) {
+      this.#board = board;
+    } else {
+      // eslint-disable-next-line unicorn/no-new-array -- Array.from is ~24x slower; this is a hot path
+      this.#board = new Array<number>(128).fill(0);
 
-    if (board !== undefined) {
-      for (const [square, p] of board) {
-        this.#board[squareToIndex(square)] = pieceToBitmask(p);
+      if (board !== undefined) {
+        for (const [square, p] of board) {
+          this.#board[squareToIndex(square)] = pieceToBitmask(p);
+        }
       }
     }
 
@@ -307,8 +313,8 @@ export class Position {
     );
   }
 
-  // Bypasses the constructor to create a Position from a raw 0x88 array.
-  // Used by derive() to avoid converting back to a Map.
+  // Passes the raw 0x88 array directly to the constructor's internal fast
+  // path (Array.isArray branch), skipping the 128-element allocation.
   static #from(
     board: number[],
     options: {
@@ -319,11 +325,8 @@ export class Position {
       turn: Color;
     },
   ): Position {
-    const pos = new Position(undefined, options);
-    pos.#board = board;
-    pos.#hash = undefined;
-    pos.#isCheck = undefined;
-    return pos;
+    // @ts-expect-error -- internal: overload signatures hide number[] from public API
+    return new Position(board, options);
   }
 
   // Color trick: from the target square, call reach() pretending a friendly

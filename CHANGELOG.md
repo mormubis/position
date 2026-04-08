@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.0.2] - 2026-04-08
+
+### Fixed
+
+- `derive()` no longer allocates a throwaway board array — constructor detects
+  the internal fast path via `Array.isArray`, skipping the 128-element fill
+  entirely. ~2x faster than 3.0.1, ~24x faster than 3.0.0.
+
 ## [3.0.1] - 2026-04-08
 
 ### Fixed
