@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.0.4] - 2026-04-09
+
+### Fixed
+
+- Corrected constructor parameter type to `ReadonlyMap` in README.
+
 ## [3.0.3] - 2026-04-08
 
 ### Fixed

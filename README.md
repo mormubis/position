@@ -54,8 +54,8 @@ Full API reference is available at https://mormubis.github.io/position/
 
 ```ts
 new Position()
-new Position(board: Map<Square, Piece>)
-new Position(board: Map<Square, Piece>, options?: PositionOptions)
+new Position(board: ReadonlyMap<Square, Piece>)
+new Position(board: ReadonlyMap<Square, Piece>, options?: PositionOptions)
 ```
 
 The no-argument form creates an empty position with default options. Pass
