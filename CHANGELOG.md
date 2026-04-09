@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.0.5] - 2026-04-09
+
+### Changed
+
+- added `piece` and `square` keywords
+
 ## [3.0.4] - 2026-04-09
 
 ### Fixed

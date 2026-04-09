@@ -42,7 +42,9 @@
   "keywords": [
     "board",
     "chess",
+    "piece",
     "position",
+    "square",
     "typescript"
   ],
   "license": "MIT",
@@ -69,7 +71,7 @@
   },
   "type": "module",
   "types": "dist/index.d.ts",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "dependencies": {
     "@echecs/zobrist": "^1.0.0"
   }
