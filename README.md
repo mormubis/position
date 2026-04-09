@@ -1,7 +1,6 @@
 # Position
 
 [![npm](https://img.shields.io/npm/v/@echecs/position)](https://www.npmjs.com/package/@echecs/position)
-[![Test](https://github.com/mormubis/position/actions/workflows/test.yml/badge.svg)](https://github.com/mormubis/position/actions/workflows/test.yml)
 [![Coverage](https://codecov.io/gh/mormubis/position/branch/main/graph/badge.svg)](https://codecov.io/gh/mormubis/position)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![API Docs](https://img.shields.io/badge/API-docs-blue.svg)](https://mormubis.github.io/position/)
