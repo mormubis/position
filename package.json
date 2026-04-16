@@ -40,15 +40,17 @@
   ],
   "homepage": "https://github.com/echecsjs/position#readme",
   "keywords": [
+    "0x88",
     "board",
     "chess",
+    "fen",
+    "immutable",
     "piece",
     "position",
     "square",
     "typescript"
   ],
   "license": "MIT",
-  "main": "dist/index.js",
   "name": "@echecs/position",
   "repository": {
     "type": "git",
