@@ -17,10 +17,10 @@ See the root `AGENTS.md` for workspace-wide conventions.
 
 The foundational package. Provides the `Position` type (complete chess position
 value object with `Map<Square, Piece>` board) and pure query functions. Internal
-0x88 board representation lives in `src/internal/` and is exposed via the
-`./internal` export condition for use by `@echecs/game`.
+0x88 board representation (`board.ts`, `moves.ts`) lives flat in `src/` and is
+consumed directly by `position.ts`.
 
-No runtime dependencies — keep it that way.
+Has one runtime dependency — `@echecs/zobrist` for Zobrist hashing.
 
 ---
 
