@@ -72,6 +72,19 @@ interface PositionOptions {
   turn?: Color;
 }
 
+/** A piece type that a pawn can promote to — bishop, knight, queen, or rook. */
+type PromotionPieceType = Exclude<PieceType, 'king' | 'pawn'>;
+
+/** A chess move — origin square, target square, and optional promotion. */
+interface Move {
+  /** The square the piece moves from. */
+  from: Square;
+  /** The piece type to promote to, if this is a promotion move. */
+  promotion?: PromotionPieceType;
+  /** The square the piece moves to. */
+  to: Square;
+}
+
 /** A chess piece — color and type. */
 interface Piece {
   /** The piece's color. */
@@ -94,10 +107,12 @@ export type {
   DeriveOptions,
   EnPassantSquare,
   File,
+  Move,
   Piece,
   PieceMove,
   PieceType,
   PositionOptions,
+  PromotionPieceType,
   Rank,
   SideCastlingRights,
   Square,
