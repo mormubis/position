@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.0] - 2026-04-28
+
+### Added
+
+- `Move` type — `{ from: Square; promotion?: PromotionPieceType; to: Square }`.
+- `PromotionPieceType` type — `Exclude<PieceType, 'king' | 'pawn'>`.
+
 ## [3.0.5] - 2026-04-09
 
 ### Changed

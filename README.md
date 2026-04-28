@@ -159,9 +159,11 @@ import type {
   DeriveOptions, // options accepted by Position.derive()
   EnPassantSquare, // en passant target square (rank 3 or 6 only)
   File, // 'a' | 'b' | ... | 'h'
+  Move, // { from: Square; promotion?: PromotionPieceType; to: Square }
   Piece, // { color: Color; type: PieceType }
   PieceType, // 'bishop' | 'king' | 'knight' | 'pawn' | 'queen' | 'rook'
   PositionOptions, // options accepted by the Position constructor
+  PromotionPieceType, // 'bishop' | 'knight' | 'queen' | 'rook'
   Rank, // '1' | '2' | ... | '8'
   SideCastlingRights, // { king: boolean; queen: boolean }
   Square, // 'a1' | 'a2' | ... | 'h8'
