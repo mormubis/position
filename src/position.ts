@@ -319,7 +319,8 @@ export class Position {
   // path (Array.isArray branch), skipping the 128-element allocation.
   static #from(
     board: number[],
-    options: Omit<Required<PositionData>, 'board'>,
+    options: Omit<Required<PositionData>, 'board' | 'enPassantSquare'> &
+      Pick<PositionData, 'enPassantSquare'>,
   ): Position {
     // @ts-expect-error -- internal: board is number[] not Map, caught by Array.isArray in constructor
     return new Position({ board, ...options });
