@@ -7,7 +7,7 @@ export type {
   Move,
   Piece,
   PieceType,
-  PositionOptions,
+  PositionData,
   PromotionPieceType,
   Rank,
   SideCastlingRights,
