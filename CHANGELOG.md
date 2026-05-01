@@ -1,5 +1,21 @@
 # Changelog
 
+## [4.0.0] - 2026-05-01
+
+### Changed
+
+- `Position` constructor accepts a single optional `PositionData` object instead
+  of `(board?, options?)`. Enables `new Position(parse(fen))` for direct
+  round-trip with `@echecs/fen`.
+- `PositionOptions` type renamed to `PositionData` — adds `board` field
+  alongside the existing 5 option fields.
+- `DeriveOptions` extends `Omit<PositionData, 'board'>` instead of
+  `PositionOptions`.
+
+### Removed
+
+- `PositionOptions` type export — replaced by `PositionData`.
+
 ## [3.1.0] - 2026-04-28
 
 ### Added
