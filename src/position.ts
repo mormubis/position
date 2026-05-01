@@ -37,7 +37,7 @@ import type {
   Piece,
   PieceMove,
   PieceType,
-  PositionOptions,
+  PositionData,
   Square,
 } from './types.js';
 
@@ -50,8 +50,10 @@ const PIECE_MOVES: Record<PieceType, readonly PieceMove[]> = {
   rook: ROOK_MOVES,
 };
 
-const DEFAULT_OPTIONS: Required<Omit<PositionOptions, 'enPassantSquare'>> &
-  Pick<PositionOptions, 'enPassantSquare'> = {
+const DEFAULT_OPTIONS: Required<
+  Omit<PositionData, 'board' | 'enPassantSquare'>
+> &
+  Pick<PositionData, 'enPassantSquare'> = {
   castlingRights: {
     black: { king: true, queen: true },
     white: { king: true, queen: true },
@@ -88,31 +90,31 @@ export class Position {
   readonly turn: Color;
 
   /**
-   * @param board - Piece placement. Defaults to an empty board.
-   * @param options - Turn, castling rights, en passant, and move counters.
+   * @param data - Board, turn, castling rights, en passant, and move counters.
+   *   All fields are optional — omitted fields use defaults.
    */
-  constructor(board?: ReadonlyMap<Square, Piece>, options?: PositionOptions) {
-    // Internal fast path: #from() passes the raw 0x88 array directly,
+  constructor(data?: PositionData) {
+    // Internal fast path: #from() passes the raw 0x88 array as data.board,
     // skipping the 128-element allocation that would be immediately overwritten.
-    if (Array.isArray(board)) {
-      this.#board = board;
+    if (Array.isArray(data?.board)) {
+      this.#board = data.board as unknown as number[];
     } else {
       // eslint-disable-next-line unicorn/no-new-array -- Array.from is ~24x slower; this is a hot path
       this.#board = new Array<number>(128).fill(0);
 
-      if (board !== undefined) {
-        for (const [square, p] of board) {
+      if (data?.board !== undefined) {
+        for (const [square, p] of data.board) {
           this.#board[squareToIndex(square)] = pieceToBitmask(p);
         }
       }
     }
 
-    const options_ = { ...DEFAULT_OPTIONS, ...options };
-    this.castlingRights = options_.castlingRights;
-    this.enPassantSquare = options_.enPassantSquare;
-    this.fullmoveNumber = options_.fullmoveNumber;
-    this.halfmoveClock = options_.halfmoveClock;
-    this.turn = options_.turn;
+    const options = { ...DEFAULT_OPTIONS, ...data };
+    this.castlingRights = options.castlingRights;
+    this.enPassantSquare = options.enPassantSquare;
+    this.fullmoveNumber = options.fullmoveNumber;
+    this.halfmoveClock = options.halfmoveClock;
+    this.turn = options.turn;
   }
 
   /**
@@ -317,16 +319,10 @@ export class Position {
   // path (Array.isArray branch), skipping the 128-element allocation.
   static #from(
     board: number[],
-    options: {
-      castlingRights: CastlingRights;
-      enPassantSquare: EnPassantSquare | undefined;
-      fullmoveNumber: number;
-      halfmoveClock: number;
-      turn: Color;
-    },
+    options: Omit<Required<PositionData>, 'board'>,
   ): Position {
-    // @ts-expect-error -- internal: overload signatures hide number[] from public API
-    return new Position(board, options);
+    // @ts-expect-error -- internal: board is number[] not Map, caught by Array.isArray in constructor
+    return new Position({ board, ...options });
   }
 
   // Color trick: from the target square, call reach() pretending a friendly
