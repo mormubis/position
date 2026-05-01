@@ -44,7 +44,9 @@ interface PositionData {
 
 - exported from `types.ts` and `index.ts`
 - `PositionOptions` is removed entirely
-- `DeriveOptions` extends `PositionData` instead of `PositionOptions`
+- `DeriveOptions` extends `Omit<PositionData, 'board'>` instead of
+  `PositionOptions` — `derive()` receives board changes through `changes` (delta
+  tuples), not through a full `Map`, so inheriting `board` would be misleading
 
 `@echecs/fen`'s `Position` interface (all fields required) is structurally
 assignable to `PositionData` since every required field satisfies the optional
