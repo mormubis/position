@@ -37,10 +37,11 @@ interface CastlingRights {
 }
 
 /**
- * Options accepted by {@link Position.derive}. Extends {@link PositionOptions}
- * with a `changes` field for applying piece changes.
+ * Options accepted by {@link Position.derive}. Extends
+ * {@link PositionData} (minus `board`) with a `changes` field for applying
+ * piece changes.
  */
-interface DeriveOptions extends PositionOptions {
+interface DeriveOptions extends Omit<PositionData, 'board'> {
   /**
    * Piece changes as `[square, piece]` tuples. Set piece to `undefined` to
    * clear a square. Only changed squares need to be listed.
@@ -49,10 +50,12 @@ interface DeriveOptions extends PositionOptions {
 }
 
 /**
- * Options for constructing a {@link Position}. All fields are optional —
+ * Plain-data representation of a chess position. All fields are optional —
  * omitted fields use defaults (standard starting position values).
  */
-interface PositionOptions {
+interface PositionData {
+  /** Piece placement as a map from square to piece. Defaults to an empty board. */
+  board?: ReadonlyMap<Square, Piece>;
   /** Castling availability. Defaults to all four castling moves available. */
   castlingRights?: CastlingRights;
   /** En passant target square, if any. */
@@ -111,7 +114,7 @@ export type {
   Piece,
   PieceMove,
   PieceType,
-  PositionOptions,
+  PositionData,
   PromotionPieceType,
   Rank,
   SideCastlingRights,
