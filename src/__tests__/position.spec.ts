@@ -15,7 +15,7 @@ describe('Position constructor', () => {
   });
 
   it('starting position has 32 pieces', () => {
-    const pos = new Position(STARTING_POSITION);
+    const pos = new Position({ board: STARTING_POSITION });
     expect(pos.pieces().size).toBe(32);
   });
 
@@ -24,7 +24,7 @@ describe('Position constructor', () => {
       ['e1', { color: 'white', type: 'king' }],
       ['e8', { color: 'black', type: 'king' }],
     ]);
-    const pos = new Position(board);
+    const pos = new Position({ board });
     expect(pos.pieces().size).toBe(2);
     expect(pos.turn).toBe('white');
   });
@@ -34,7 +34,8 @@ describe('Position constructor', () => {
       ['e1', { color: 'white', type: 'king' }],
       ['e8', { color: 'black', type: 'king' }],
     ]);
-    const pos = new Position(board, {
+    const pos = new Position({
+      board,
       turn: 'black',
       halfmoveClock: 5,
       fullmoveNumber: 10,
@@ -57,36 +58,38 @@ describe('Position constructor', () => {
 
 describe('piece', () => {
   it('returns piece on occupied square', () => {
-    const pos = new Position(STARTING_POSITION);
+    const pos = new Position({ board: STARTING_POSITION });
     expect(pos.at('e1')).toEqual({ color: 'white', type: 'king' });
   });
 
   it('returns undefined for empty square', () => {
-    const pos = new Position(STARTING_POSITION);
+    const pos = new Position({ board: STARTING_POSITION });
     expect(pos.at('e4')).toBeUndefined();
   });
 });
 
 describe('pieces', () => {
   it('returns all 32 pieces when no color filter', () => {
-    const pos = new Position(STARTING_POSITION);
+    const pos = new Position({ board: STARTING_POSITION });
     expect(pos.pieces().size).toBe(32);
   });
 
   it('returns 16 white pieces', () => {
-    const pos = new Position(STARTING_POSITION);
+    const pos = new Position({ board: STARTING_POSITION });
     expect(pos.pieces('white').size).toBe(16);
   });
 
   it('returns 16 black pieces', () => {
-    const pos = new Position(STARTING_POSITION);
+    const pos = new Position({ board: STARTING_POSITION });
     expect(pos.pieces('black').size).toBe(16);
   });
 });
 
 describe('isInsufficientMaterial', () => {
   it('returns false for starting position', () => {
-    expect(new Position(STARTING_POSITION).isInsufficientMaterial).toBe(false);
+    expect(
+      new Position({ board: STARTING_POSITION }).isInsufficientMaterial,
+    ).toBe(false);
   });
 
   it('returns true for K vs K', () => {
@@ -94,7 +97,7 @@ describe('isInsufficientMaterial', () => {
       ['e1', { color: 'white', type: 'king' }],
       ['e8', { color: 'black', type: 'king' }],
     ]);
-    expect(new Position(board).isInsufficientMaterial).toBe(true);
+    expect(new Position({ board }).isInsufficientMaterial).toBe(true);
   });
 
   it('returns true for K vs KB', () => {
@@ -103,7 +106,7 @@ describe('isInsufficientMaterial', () => {
       ['e8', { color: 'black', type: 'king' }],
       ['c1', { color: 'white', type: 'bishop' }],
     ]);
-    expect(new Position(board).isInsufficientMaterial).toBe(true);
+    expect(new Position({ board }).isInsufficientMaterial).toBe(true);
   });
 
   it('returns true for K vs KN', () => {
@@ -112,7 +115,7 @@ describe('isInsufficientMaterial', () => {
       ['e8', { color: 'black', type: 'king' }],
       ['c1', { color: 'black', type: 'knight' }],
     ]);
-    expect(new Position(board).isInsufficientMaterial).toBe(true);
+    expect(new Position({ board }).isInsufficientMaterial).toBe(true);
   });
 
   // Ported from chess.js
@@ -122,7 +125,7 @@ describe('isInsufficientMaterial', () => {
       ['e2', { color: 'black', type: 'pawn' }],
       ['e3', { color: 'black', type: 'king' }],
     ]);
-    expect(new Position(board, { turn: 'black' }).isInsufficientMaterial).toBe(
+    expect(new Position({ board, turn: 'black' }).isInsufficientMaterial).toBe(
       false,
     );
   });
@@ -133,7 +136,7 @@ describe('isInsufficientMaterial', () => {
       ['e8', { color: 'black', type: 'king' }],
       ['a1', { color: 'white', type: 'rook' }],
     ]);
-    expect(new Position(board).isInsufficientMaterial).toBe(false);
+    expect(new Position({ board }).isInsufficientMaterial).toBe(false);
   });
 
   // Ported from chess.js — same-color bishops cases
@@ -145,7 +148,7 @@ describe('isInsufficientMaterial', () => {
       ['d6', { color: 'white', type: 'bishop' }],
       ['a7', { color: 'black', type: 'bishop' }],
     ]);
-    expect(new Position(board).isInsufficientMaterial).toBe(true);
+    expect(new Position({ board }).isInsufficientMaterial).toBe(true);
   });
 
   it('returns true for KB vs KB with many same-color bishops', () => {
@@ -162,7 +165,7 @@ describe('isInsufficientMaterial', () => {
       ['f6', { color: 'black', type: 'bishop' }],
       ['h6', { color: 'white', type: 'bishop' }],
     ]);
-    expect(new Position(board).isInsufficientMaterial).toBe(true);
+    expect(new Position({ board }).isInsufficientMaterial).toBe(true);
   });
 
   it('returns false for KB vs KB with bishops on opposite color squares', () => {
@@ -173,7 +176,7 @@ describe('isInsufficientMaterial', () => {
       ['h7', { color: 'white', type: 'bishop' }],
       ['g5', { color: 'black', type: 'bishop' }],
     ]);
-    expect(new Position(board).isInsufficientMaterial).toBe(false);
+    expect(new Position({ board }).isInsufficientMaterial).toBe(false);
   });
 
   it('returns false for KN vs KB', () => {
@@ -183,7 +186,7 @@ describe('isInsufficientMaterial', () => {
       ['h7', { color: 'white', type: 'knight' }],
       ['g5', { color: 'black', type: 'bishop' }],
     ]);
-    expect(new Position(board).isInsufficientMaterial).toBe(false);
+    expect(new Position({ board }).isInsufficientMaterial).toBe(false);
   });
 
   it('returns false for KN vs KN', () => {
@@ -193,27 +196,27 @@ describe('isInsufficientMaterial', () => {
       ['h7', { color: 'white', type: 'knight' }],
       ['e5', { color: 'black', type: 'knight' }],
     ]);
-    expect(new Position(board).isInsufficientMaterial).toBe(false);
+    expect(new Position({ board }).isInsufficientMaterial).toBe(false);
   });
 });
 
 describe('isValid', () => {
   it('returns true for starting position', () => {
-    expect(new Position(STARTING_POSITION).isValid).toBe(true);
+    expect(new Position({ board: STARTING_POSITION }).isValid).toBe(true);
   });
 
   it('returns false when white king is missing', () => {
     const board = new Map<Square, Piece>([
       ['e8', { color: 'black', type: 'king' }],
     ]);
-    expect(new Position(board).isValid).toBe(false);
+    expect(new Position({ board }).isValid).toBe(false);
   });
 
   it('returns false when black king is missing', () => {
     const board = new Map<Square, Piece>([
       ['e1', { color: 'white', type: 'king' }],
     ]);
-    expect(new Position(board).isValid).toBe(false);
+    expect(new Position({ board }).isValid).toBe(false);
   });
 
   it('returns false when a pawn is on rank 1', () => {
@@ -222,7 +225,7 @@ describe('isValid', () => {
       ['e8', { color: 'black', type: 'king' }],
       ['a1', { color: 'white', type: 'pawn' }],
     ]);
-    expect(new Position(board).isValid).toBe(false);
+    expect(new Position({ board }).isValid).toBe(false);
   });
 
   it('returns false when a pawn is on rank 8', () => {
@@ -231,7 +234,7 @@ describe('isValid', () => {
       ['e8', { color: 'black', type: 'king' }],
       ['a8', { color: 'black', type: 'pawn' }],
     ]);
-    expect(new Position(board).isValid).toBe(false);
+    expect(new Position({ board }).isValid).toBe(false);
   });
 
   it('returns false when the side not to move is in check', () => {
@@ -241,14 +244,14 @@ describe('isValid', () => {
       ['e2', { color: 'white', type: 'rook' }],
     ]);
     // It is white's turn, but black king is in check from white rook — invalid
-    const pos = new Position(board, { turn: 'white' });
+    const pos = new Position({ board, turn: 'white' });
     expect(pos.isValid).toBe(false);
   });
 });
 
 describe('isCheck', () => {
   it('returns false for starting position', () => {
-    expect(new Position(STARTING_POSITION).isCheck).toBe(false);
+    expect(new Position({ board: STARTING_POSITION }).isCheck).toBe(false);
   });
 
   it('returns true when king is attacked by a rook on same file', () => {
@@ -256,7 +259,7 @@ describe('isCheck', () => {
       ['e1', { color: 'white', type: 'king' }],
       ['e8', { color: 'black', type: 'rook' }],
     ]);
-    const pos = new Position(board, { turn: 'white' });
+    const pos = new Position({ board, turn: 'white' });
     expect(pos.isCheck).toBe(true);
   });
 
@@ -266,7 +269,7 @@ describe('isCheck', () => {
       ['e4', { color: 'white', type: 'pawn' }],
       ['e8', { color: 'black', type: 'rook' }],
     ]);
-    const pos = new Position(board, { turn: 'white' });
+    const pos = new Position({ board, turn: 'white' });
     expect(pos.isCheck).toBe(false);
   });
 
@@ -302,7 +305,7 @@ describe('isCheck', () => {
       ['d1', { color: 'white', type: 'queen' }],
       ['e1', { color: 'white', type: 'king' }],
     ]);
-    const pos = new Position(board, { turn: 'white' });
+    const pos = new Position({ board, turn: 'white' });
     expect(pos.isCheck).toBe(true);
   });
 
@@ -313,7 +316,7 @@ describe('isCheck', () => {
       ['e8', { color: 'black', type: 'king' }],
       ['e6', { color: 'white', type: 'king' }],
     ]);
-    const pos = new Position(board, { turn: 'black' });
+    const pos = new Position({ board, turn: 'black' });
     expect(pos.isCheck).toBe(true);
   });
 
@@ -324,7 +327,7 @@ describe('isCheck', () => {
       ['e7', { color: 'white', type: 'pawn' }],
       ['e6', { color: 'white', type: 'king' }],
     ]);
-    const pos = new Position(board, { turn: 'black' });
+    const pos = new Position({ board, turn: 'black' });
     expect(pos.isCheck).toBe(false);
   });
 });
@@ -344,7 +347,7 @@ describe('hash', () => {
       ['e1', { color: 'white', type: 'king' }],
       ['e8', { color: 'black', type: 'king' }],
     ]);
-    const pos2 = new Position(board);
+    const pos2 = new Position({ board });
     expect(pos1.hash).not.toBe(pos2.hash);
   });
 
@@ -353,15 +356,15 @@ describe('hash', () => {
       ['e1', { color: 'white', type: 'king' }],
       ['e8', { color: 'black', type: 'king' }],
     ]);
-    const posW = new Position(board, { turn: 'white' });
-    const posB = new Position(board, { turn: 'black' });
+    const posW = new Position({ board, turn: 'white' });
+    const posB = new Position({ board, turn: 'black' });
     expect(posW.hash).not.toBe(posB.hash);
   });
 });
 
 describe('derive', () => {
   it('returns a clone when called with no arguments', () => {
-    const pos = new Position(STARTING_POSITION);
+    const pos = new Position({ board: STARTING_POSITION });
     const clone = pos.derive();
     expect(clone).not.toBe(pos);
     expect(clone.turn).toBe(pos.turn);
@@ -373,7 +376,7 @@ describe('derive', () => {
   });
 
   it('applies board changes', () => {
-    const pos = new Position(STARTING_POSITION);
+    const pos = new Position({ board: STARTING_POSITION });
     const derived = pos.derive({
       changes: [
         ['e2', undefined],
@@ -385,7 +388,7 @@ describe('derive', () => {
   });
 
   it('does not modify the original position', () => {
-    const pos = new Position(STARTING_POSITION);
+    const pos = new Position({ board: STARTING_POSITION });
     pos.derive({
       changes: [['e2', undefined]],
     });
@@ -393,14 +396,14 @@ describe('derive', () => {
   });
 
   it('overrides turn', () => {
-    const pos = new Position(STARTING_POSITION);
+    const pos = new Position({ board: STARTING_POSITION });
     const derived = pos.derive({ turn: 'black' });
     expect(derived.turn).toBe('black');
     expect(pos.turn).toBe('white');
   });
 
   it('overrides castling rights', () => {
-    const pos = new Position(STARTING_POSITION);
+    const pos = new Position({ board: STARTING_POSITION });
     const rights = {
       black: { king: false, queen: false },
       white: { king: false, queen: false },
@@ -410,26 +413,26 @@ describe('derive', () => {
   });
 
   it('sets en passant square', () => {
-    const pos = new Position(STARTING_POSITION);
+    const pos = new Position({ board: STARTING_POSITION });
     const derived = pos.derive({ enPassantSquare: 'e3' });
     expect(derived.enPassantSquare).toBe('e3');
   });
 
   it('clears en passant square with undefined', () => {
-    const pos = new Position(undefined, { enPassantSquare: 'e3' });
+    const pos = new Position({ enPassantSquare: 'e3' });
     const derived = pos.derive({ enPassantSquare: undefined });
     expect(derived.enPassantSquare).toBeUndefined();
   });
 
   it('overrides halfmove clock and fullmove number', () => {
-    const pos = new Position(STARTING_POSITION);
+    const pos = new Position({ board: STARTING_POSITION });
     const derived = pos.derive({ halfmoveClock: 5, fullmoveNumber: 10 });
     expect(derived.halfmoveClock).toBe(5);
     expect(derived.fullmoveNumber).toBe(10);
   });
 
   it('applies board and options together', () => {
-    const pos = new Position(STARTING_POSITION);
+    const pos = new Position({ board: STARTING_POSITION });
     const derived = pos.derive({
       changes: [
         ['e2', undefined],
@@ -447,7 +450,7 @@ describe('derive', () => {
   });
 
   it('last tuple wins when multiple target the same square', () => {
-    const pos = new Position(STARTING_POSITION);
+    const pos = new Position({ board: STARTING_POSITION });
     const derived = pos.derive({
       changes: [
         ['e4', { color: 'white', type: 'pawn' }],
@@ -458,7 +461,7 @@ describe('derive', () => {
   });
 
   it('supports chained derive calls', () => {
-    const pos = new Position(STARTING_POSITION);
+    const pos = new Position({ board: STARTING_POSITION });
     const derived = pos
       .derive({ changes: [['e2', undefined]], turn: 'black' })
       .derive({ changes: [['e4', { color: 'white', type: 'pawn' }]] });
@@ -468,7 +471,7 @@ describe('derive', () => {
   });
 
   it('produces correct Zobrist hash', () => {
-    const pos = new Position(STARTING_POSITION);
+    const pos = new Position({ board: STARTING_POSITION });
     const derived = pos.derive({
       changes: [
         ['e2', undefined],
@@ -481,7 +484,8 @@ describe('derive', () => {
     const board = new Map(pos.pieces());
     board.delete('e2');
     board.set('e4', { color: 'white', type: 'pawn' });
-    const expected = new Position(board, {
+    const expected = new Position({
+      board,
       turn: 'black',
       enPassantSquare: 'e3',
     });

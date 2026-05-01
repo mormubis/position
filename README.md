@@ -22,7 +22,7 @@ npm install @echecs/position
 import { Position, STARTING_POSITION } from '@echecs/position';
 
 // Starting position
-const pos = new Position(STARTING_POSITION);
+const pos = new Position({ board: STARTING_POSITION });
 
 console.log(pos.turn); // 'white'
 console.log(pos.fullmoveNumber); // 1
@@ -54,13 +54,17 @@ Full API reference is available at https://position.echecs.dev/
 
 ```ts
 new Position()
-new Position(board: ReadonlyMap<Square, Piece>)
-new Position(board: ReadonlyMap<Square, Piece>, options?: PositionOptions)
+new Position(data: PositionData)
 ```
 
 The no-argument form creates an empty position with default options. Pass
-`STARTING_POSITION` for the standard chess opening. Pass any custom `board` map
-and optional `options` to construct an arbitrary position.
+`{ board: STARTING_POSITION }` for the standard chess opening. Pass any
+`PositionData` object to construct an arbitrary position.
+
+```typescript
+// From a FEN string (with @echecs/fen)
+const pos = new Position(parse(fen));
+```
 
 ### Properties
 
@@ -145,7 +149,7 @@ import { STARTING_POSITION } from '@echecs/position';
 standard starting squares. Pass it to the `Position` constructor:
 
 ```typescript
-const pos = new Position(STARTING_POSITION);
+const pos = new Position({ board: STARTING_POSITION });
 ```
 
 ### Types
@@ -162,7 +166,7 @@ import type {
   Move, // { from: Square; promotion?: PromotionPieceType; to: Square }
   Piece, // { color: Color; type: PieceType }
   PieceType, // 'bishop' | 'king' | 'knight' | 'pawn' | 'queen' | 'rook'
-  PositionOptions, // options accepted by the Position constructor
+  PositionData, // data accepted by the Position constructor
   PromotionPieceType, // 'bishop' | 'knight' | 'queen' | 'rook'
   Rank, // '1' | '2' | ... | '8'
   SideCastlingRights, // { king: boolean; queen: boolean }
