@@ -10,7 +10,8 @@ coverage/
 # Documentation
 docs/api/*
 !docs/api/.gitkeep
-docs/superpowers/plans/
+.superpowers/
+docs/superpowers/
 
 # Playwright MCP
 .playwright-mcp/
