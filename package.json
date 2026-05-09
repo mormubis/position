@@ -52,6 +52,9 @@
   ],
   "license": "MIT",
   "name": "@echecs/position",
+  "publishConfig": {
+    "access": "public"
+  },
   "packageManager": "pnpm@10.33.0",
   "repository": {
     "type": "git",
